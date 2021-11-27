@@ -5,3 +5,6 @@ venv/
 artificial_gps/data/
 # Truner results folder
 artificial_gps_hp_tuner/
+
+# RL algorithm logs
+basic_drone_rl/tb_logs/
