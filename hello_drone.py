@@ -12,6 +12,7 @@ client.confirmConnection()
 client.enableApiControl(True)
 
 state = client.getMultirotorState()
+print(state.collision.has_collided)
 s = pprint.pformat(state)
 print("state: %s" % s)
 

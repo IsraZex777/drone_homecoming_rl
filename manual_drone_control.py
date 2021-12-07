@@ -52,6 +52,7 @@ class DroneController:
                 self._handle_commands()
                 time.sleep(self.duration / 2.0)
             keyboard_listener.join()
+
         print("Manual control mode was successfully deactivated.")
         print("Returns home")
         self._client.goHomeAsync().join()
