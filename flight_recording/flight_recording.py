@@ -9,10 +9,8 @@ from .settings import (
     INPUT_DATA_COLUMNS
 )
 
-RECORDS_FOLDER = os.path.join(os.path.dirname(__file__), "recordings")
 
-
-def start_recording(stop_recording: threading.Event, flight_name: str, drone_name: str = "") -> pd.DataFrame:
+def start_recording(stop_recording: threading.Event, flight_name: str = "flight", drone_name: str = "") -> pd.DataFrame:
     """
     Records flight sensors data while flight and returns it
 
@@ -32,6 +30,8 @@ def start_recording(stop_recording: threading.Event, flight_name: str, drone_nam
         multi_rotor_state = client.getMultirotorState()
         barometer_state = client.getBarometerData()
         magnetometer_state = client.getMagnetometerData()
+        rotor_state = client.getRotorStates()
+
         data = np.array([
             multi_rotor_state.gps_location.altitude,
             multi_rotor_state.gps_location.latitude,
@@ -61,6 +61,19 @@ def start_recording(stop_recording: threading.Event, flight_name: str, drone_nam
             magnetometer_state.magnetic_field_body.y_val,
             magnetometer_state.magnetic_field_body.z_val,
             magnetometer_state.time_stamp,
+            rotor_state.rotors[0]["speed"],
+            rotor_state.rotors[0]["thrust"],
+            rotor_state.rotors[0]["torque_scaler"],
+            rotor_state.rotors[1]["speed"],
+            rotor_state.rotors[1]["thrust"],
+            rotor_state.rotors[1]["torque_scaler"],
+            rotor_state.rotors[2]["speed"],
+            rotor_state.rotors[2]["thrust"],
+            rotor_state.rotors[2]["torque_scaler"],
+            rotor_state.rotors[3]["speed"],
+            rotor_state.rotors[3]["thrust"],
+            rotor_state.rotors[3]["torque_scaler"],
+            rotor_state.timestamp,
         ])
         record = pd.DataFrame(data.reshape(1, -1), columns=INPUT_DATA_COLUMNS)
         all_records = all_records.append(record, ignore_index=True)

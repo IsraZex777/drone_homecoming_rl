@@ -24,10 +24,15 @@ from .settings import (
 )
 
 
-def convert_timestamp_to_interval(flight_input_df: pd.DataFrame):
+def convert_timestamp_to_interval_seconds(flight_input_df: pd.DataFrame):
+    """
+    Converts the timestamp fields into the amount of seconds between each two timestamps
+
+    Note: each timestamp represents the amount of NANO seconds (1,000,000,000 nano seconds = 1 seconds)
+    """
     # Converts the start time to time interval
     next_time_df = flight_input_df[TIMESTAMP_INPUT_COLUMNS].shift(-1)
-    time_diff_df = next_time_df - flight_input_df[TIMESTAMP_INPUT_COLUMNS]
+    time_diff_df = (next_time_df - flight_input_df[TIMESTAMP_INPUT_COLUMNS]) / 1_000_000_000
     flight_input_df.loc[:, TIMESTAMP_INPUT_COLUMNS] = time_diff_df
     return flight_input_df
 
@@ -38,6 +43,7 @@ def convert_location_to_step(flight_output_df: pd.DataFrame):
 
     return coordinate_diff
 
+pd.set_option('float_format', '{:f}'.format)
 
 @print_exec_time
 def load_preprocessed_sequences():
@@ -53,7 +59,8 @@ def load_preprocessed_sequences():
         flight_df = pd.read_csv(csv_path)
 
         x_df = flight_df[INPUT_DATA_COLUMNS].copy()
-        x_df = convert_timestamp_to_interval(x_df)
+        x_df = convert_timestamp_to_interval_seconds(x_df)
+        print(x_df["rotor_timestamp"] / 1_000_000_000)
 
         y_df = flight_df[OUTPUT_DATA_COLUMNS].copy()
         y_df = convert_location_to_step(y_df)
@@ -62,6 +69,7 @@ def load_preprocessed_sequences():
         x_df.drop(x_df.tail(1).index, inplace=True)
         y_df.drop(y_df.tail(1).index, inplace=True)
 
+        print(x_df.loc[1:50].to_string())
         flight_data_x.append(x_df.to_numpy())
         flight_data_y.append(y_df.to_numpy())
 
