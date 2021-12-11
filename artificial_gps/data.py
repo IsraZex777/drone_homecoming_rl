@@ -50,7 +50,7 @@ def load_preprocessed_sequences():
             continue
 
         csv_path = os.path.join(GLOBAL_DATA_FOLDER_PATH, csv_name)
-        flight_df = pd.read_excel(csv_path)
+        flight_df = pd.read_csv(csv_path)
 
         x_df = flight_df[INPUT_DATA_COLUMNS].copy()
         x_df = convert_timestamp_to_interval(x_df)
