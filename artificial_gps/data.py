@@ -60,7 +60,6 @@ def load_preprocessed_sequences():
 
         x_df = flight_df[INPUT_DATA_COLUMNS].copy()
         x_df = convert_timestamp_to_interval_seconds(x_df)
-        print(x_df["rotor_timestamp"] / 1_000_000_000)
 
         y_df = flight_df[OUTPUT_DATA_COLUMNS].copy()
         y_df = convert_location_to_step(y_df)
@@ -69,7 +68,6 @@ def load_preprocessed_sequences():
         x_df.drop(x_df.tail(1).index, inplace=True)
         y_df.drop(y_df.tail(1).index, inplace=True)
 
-        print(x_df.loc[1:50].to_string())
         flight_data_x.append(x_df.to_numpy())
         flight_data_y.append(y_df.to_numpy())
 

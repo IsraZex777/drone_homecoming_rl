@@ -27,7 +27,7 @@ from .settings import (
 
 
 @print_exec_time
-def create_model(hp: kt.HyperParameters) -> Model:
+def create_model_dynamic(hp: kt.HyperParameters) -> Model:
     """
     Creates dl model
     :param hp: Hyper parameters (Initialized by a tuning algorithm)
@@ -59,8 +59,8 @@ def create_model(hp: kt.HyperParameters) -> Model:
     model.add(layers.Dropout(dense_dropout_5))
     model.add(layers.Dense(len(OUTPUT_DATA_COLUMNS)))
 
-    adam_learning_rate = hp.Choice("adam_learning_rate", [ 0.01, 0.001])
-    optimizer = optimizers.Adam(lr=adam_learning_rate)
+    adam_learning_rate = hp.Choice("adam_learning_rate", [0.01, 0.001])
+    optimizer = optimizers.Adam(learning_rate=adam_learning_rate)
     model.compile(loss='mean_squared_error', optimizer=optimizer)
 
     return model
@@ -70,7 +70,7 @@ def create_model_tuner():
     hp = kt.HyperParameters()
 
     tuner = kt.RandomSearch(
-        create_model,
+        create_model_dynamic,
         hyperparameters=hp,
         tune_new_entries=True,
         objective="val_loss",
@@ -84,7 +84,7 @@ def create_model_tuner():
 
 
 @print_exec_time
-def train_model():
+def train_tuned_model():
     train_x, train_y, dev_x, dev_y, test_x, test_y = load_preprocessed_dataset()
 
     tuner = create_model_tuner()

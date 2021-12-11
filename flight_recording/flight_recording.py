@@ -81,7 +81,6 @@ def start_recording(stop_recording: threading.Event,
         record = pd.DataFrame(data.reshape(1, -1), columns=INPUT_DATA_COLUMNS)
         all_records = all_records.append(record, ignore_index=True)
         time.sleep(0.010)
-    print(os.path.join(RECORDS_FOLDER, f"{flight_name}_record_data.xlsx"))
     all_records.to_csv(os.path.join(RECORDS_FOLDER, f"{flight_name}_record_data.csv"))
 
 

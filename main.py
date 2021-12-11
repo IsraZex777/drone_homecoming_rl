@@ -1,4 +1,4 @@
-from artificial_gps.main import train_model
+from artificial_gps.experiment1 import train_model
 from artificial_gps.data import load_preprocessed_sequences
 
 if __name__ == "__main__":
