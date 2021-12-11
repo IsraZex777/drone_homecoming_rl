@@ -8,6 +8,10 @@ from tensorflow.keras import (
     optimizers
 )
 
+from flight_recording import (
+    INPUT_DATA_COLUMNS
+)
+
 from .data import (
     load_preprocessed_dataset,
 )
@@ -18,7 +22,6 @@ from .utils import (
 
 from .settings import (
     INPUT_SEQUENCE_LEN,
-    INPUT_DATA_COLUMNS,
     OUTPUT_DATA_COLUMNS
 )
 
