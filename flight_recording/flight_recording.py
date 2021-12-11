@@ -6,11 +6,14 @@ import pandas as pd
 import airsim
 
 from .settings import (
-    INPUT_DATA_COLUMNS
+    INPUT_DATA_COLUMNS,
+    RECORDS_FOLDER
 )
 
 
-def start_recording(stop_recording: threading.Event, flight_name: str = "flight", drone_name: str = "") -> pd.DataFrame:
+def start_recording(stop_recording: threading.Event,
+                    flight_name: str = "flight",
+                    drone_name: str = ""):
     """
     Records flight sensors data while flight and returns it
 
@@ -27,10 +30,10 @@ def start_recording(stop_recording: threading.Event, flight_name: str = "flight"
     all_records = pd.DataFrame(columns=INPUT_DATA_COLUMNS)
 
     while not stop_recording.is_set():
-        multi_rotor_state = client.getMultirotorState()
-        barometer_state = client.getBarometerData()
-        magnetometer_state = client.getMagnetometerData()
-        rotor_state = client.getRotorStates()
+        multi_rotor_state = client.getMultirotorState(vehicle_name=drone_name)
+        barometer_state = client.getBarometerData(vehicle_name=drone_name)
+        magnetometer_state = client.getMagnetometerData(vehicle_name=drone_name)
+        rotor_state = client.getRotorStates(vehicle_name=drone_name)
 
         data = np.array([
             multi_rotor_state.gps_location.altitude,
