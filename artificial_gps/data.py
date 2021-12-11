@@ -10,22 +10,25 @@ from tensorflow.keras import (
     initializers
 )
 
-from .utils import print_exec_time
-from .settings import (
-    INPUT_SEQUENCE_LEN,
+from flight_recording import (
     INPUT_DATA_COLUMNS,
-    OUTPUT_DATA_COLUMNS
+    TIMESTAMP_INPUT_COLUMNS
 )
 
-RELATIVE_DATA_FOLDER_PATH = "./data/flights"
-GLOBAL_DATA_FOLDER_PATH = os.path.join(os.path.dirname(__file__), RELATIVE_DATA_FOLDER_PATH)
+from .utils import print_exec_time
+
+from .settings import (
+    INPUT_SEQUENCE_LEN,
+    OUTPUT_DATA_COLUMNS,
+    GLOBAL_DATA_FOLDER_PATH
+)
 
 
-def convert_time_offset_to_interval(flight_input_df: pd.DataFrame):
+def convert_timestamp_to_interval(flight_input_df: pd.DataFrame):
     # Converts the start time to time interval
-    next_time_df = flight_input_df["time"].shift(-1)
-    time_diff_df = next_time_df - flight_input_df["time"]
-    flight_input_df.loc[:, "time"] = time_diff_df
+    next_time_df = flight_input_df[TIMESTAMP_INPUT_COLUMNS].shift(-1)
+    time_diff_df = next_time_df - flight_input_df[TIMESTAMP_INPUT_COLUMNS]
+    flight_input_df.loc[:, TIMESTAMP_INPUT_COLUMNS] = time_diff_df
     return flight_input_df
 
 
@@ -43,11 +46,14 @@ def load_preprocessed_sequences():
     flight_data_x = []
     flight_data_y = []
     for csv_name in all_csv_files:
+        if not csv_name.endswith("csv"):
+            continue
+
         csv_path = os.path.join(GLOBAL_DATA_FOLDER_PATH, csv_name)
-        flight_df = pd.read_csv(csv_path)
+        flight_df = pd.read_excel(csv_path)
 
         x_df = flight_df[INPUT_DATA_COLUMNS].copy()
-        x_df = convert_time_offset_to_interval(x_df)
+        x_df = convert_timestamp_to_interval(x_df)
 
         y_df = flight_df[OUTPUT_DATA_COLUMNS].copy()
         y_df = convert_location_to_step(y_df)
@@ -69,6 +75,7 @@ def load_preprocessed_sequences():
 
 
 def split_data(data: np.array):
+
     """
     Splits data into train, dev and test
     :return:
