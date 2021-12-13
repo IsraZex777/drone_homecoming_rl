@@ -62,7 +62,6 @@ def generate_and_save_flight_data():
         state = client.getMultirotorState()
         # If under the minimum height (the height is negative)
         if -state.kinematics_estimated.position.z_val < MIN_Z_POS:
-            print("cool")
             _reset_session(client)
 
         iteration += 1

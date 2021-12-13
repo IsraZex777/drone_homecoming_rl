@@ -7,7 +7,8 @@ import airsim
 
 from .settings import (
     INPUT_DATA_COLUMNS,
-    RECORDS_FOLDER
+    RECORDS_FOLDER,
+    IS_SIM_CLOCK_FASTER
 )
 
 
@@ -83,7 +84,9 @@ def start_recording(stop_recording: threading.Event,
         ])
         record = pd.DataFrame(data.reshape(1, -1), columns=INPUT_DATA_COLUMNS)
         all_records = all_records.append(record, ignore_index=True)
-        time.sleep(0.010)
+
+        if not IS_SIM_CLOCK_FASTER:
+            time.sleep(0.015)
     all_records.to_csv(os.path.join(RECORDS_FOLDER, f"{flight_name}_record_data.csv"))
 
 

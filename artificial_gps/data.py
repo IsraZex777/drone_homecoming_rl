@@ -4,7 +4,7 @@ import pandas as pd
 from pprint import pprint
 from json import loads
 
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from tensorflow.keras import (
     layers,
     initializers
@@ -43,7 +43,6 @@ def convert_location_to_step(flight_output_df: pd.DataFrame):
 
     return coordinate_diff
 
-pd.set_option('float_format', '{:f}'.format)
 
 @print_exec_time
 def load_preprocessed_sequences():
@@ -68,12 +67,23 @@ def load_preprocessed_sequences():
         x_df.drop(x_df.tail(1).index, inplace=True)
         y_df.drop(y_df.tail(1).index, inplace=True)
 
+        # print(x_df.loc[:50].to_string())
+        # print(y_df.loc[:50].to_string())
+
         flight_data_x.append(x_df.to_numpy())
         flight_data_y.append(y_df.to_numpy())
 
     data_x = np.concatenate(flight_data_x)
     data_y = np.concatenate(flight_data_y)
+
+    # Preprocesses data
     #
+    scaler_x = MinMaxScaler()
+    scaler_y = MinMaxScaler()
+
+    data_x = scaler_x.fit_transform(data_x)
+    data_y = scaler_y.fit_transform(data_y)
+
     # standard_scaler = StandardScaler()
     # data_y = standard_scaler.fit_transform(data_y)
 

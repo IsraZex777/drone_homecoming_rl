@@ -40,11 +40,7 @@ def create_model() -> Model:
     model = Sequential()
 
     model.add(layers.Input(len(INPUT_DATA_COLUMNS)))
-    model.add(layers.Dense(128, activation="tanh"))
-    model.add(layers.Dense(12, activation="tanh"))
-    model.add(layers.Dense(16, activation="tanh"))
-    model.add(layers.Dense(64, activation="tanh"))
-    model.add(layers.Dense(4, activation="tanh"))
+    model.add(layers.Dense(100, activation="relu"))
     model.add(layers.Dense(len(OUTPUT_DATA_COLUMNS)))
 
     optimizer = optimizers.Adam(learning_rate=0.01)
