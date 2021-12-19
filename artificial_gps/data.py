@@ -11,7 +11,6 @@ from tensorflow.keras import (
 )
 
 from flight_recording import (
-    INPUT_DATA_COLUMNS,
     TIMESTAMP_INPUT_COLUMNS
 )
 
@@ -19,6 +18,7 @@ from .utils import print_exec_time
 
 from .settings import (
     INPUT_SEQUENCE_LEN,
+    INPUT_DATA_COLUMNS,
     OUTPUT_DATA_COLUMNS,
     GLOBAL_DATA_FOLDER_PATH
 )
@@ -47,7 +47,6 @@ def convert_location_to_step(flight_output_df: pd.DataFrame):
 @print_exec_time
 def load_preprocessed_sequences():
     all_csv_files = os.listdir(GLOBAL_DATA_FOLDER_PATH)
-
     flight_data_x = []
     flight_data_y = []
     for csv_name in all_csv_files:
@@ -79,7 +78,6 @@ def load_preprocessed_sequences():
     # Preprocesses data
     #
     scaler_x = MinMaxScaler()
-
     scaler_y = MinMaxScaler()
 
     data_x = scaler_x.fit_transform(data_x)
@@ -92,7 +90,6 @@ def load_preprocessed_sequences():
 
 
 def split_data(data: np.array):
-
     """
     Splits data into train, dev and test
     :return:
