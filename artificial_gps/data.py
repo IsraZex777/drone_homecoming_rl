@@ -79,6 +79,7 @@ def load_preprocessed_sequences():
     # Preprocesses data
     #
     scaler_x = MinMaxScaler()
+
     scaler_y = MinMaxScaler()
 
     data_x = scaler_x.fit_transform(data_x)

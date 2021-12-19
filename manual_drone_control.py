@@ -12,8 +12,9 @@ class DroneController:
     """
 
     def __init__(self):
+
         self.acceleration = 3.0
-        self.max_speed = 6.0
+        self.max_speed = 25.0
         self.angular_velocity = 90.0
         self.duration = 0.4
         self.friction = 0.5

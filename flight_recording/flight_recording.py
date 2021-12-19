@@ -1,4 +1,5 @@
 import os
+import datetime
 import threading
 import time
 import numpy as np
@@ -109,7 +110,8 @@ def create_flight_recording(flight_name: str):
     return decorator
 
 
-def record_for_seconds(flight_name: str, seconds: int):
+def record_flight_for_seconds(seconds: int,
+                              flight_name: str = f"flight_{datetime.datetime.now().strftime('%Y:%m:%d_%H:%M:%S')}", ):
     """
     Records flight info for the input amount of seconds
 
@@ -121,6 +123,8 @@ def record_for_seconds(flight_name: str, seconds: int):
 
     record_thread.start()
     time.sleep(seconds)
+    stop_event.set()
+    record_thread.join()
 
 
 if __name__ == "__main__":
