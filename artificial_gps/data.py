@@ -44,8 +44,7 @@ def convert_location_to_step(flight_output_df: pd.DataFrame):
     return coordinate_diff
 
 
-@print_exec_time
-def load_preprocessed_sequences():
+def load_sequences():
     all_csv_files = os.listdir(GLOBAL_DATA_FOLDER_PATH)
     flight_data_x = []
     flight_data_y = []
@@ -75,16 +74,18 @@ def load_preprocessed_sequences():
     data_x = np.concatenate(flight_data_x)
     data_y = np.concatenate(flight_data_y)
 
-    # Preprocesses data
-    #
+    return data_x, data_y
+
+
+@print_exec_time
+def load_preprocessed_sequences():
+    data_x, data_y = load_sequences()
+
     scaler_x = MinMaxScaler()
     scaler_y = MinMaxScaler()
 
     data_x = scaler_x.fit_transform(data_x)
     data_y = scaler_y.fit_transform(data_y)
-
-    # standard_scaler = StandardScaler()
-    # data_y = standard_scaler.fit_transform(data_y)
 
     return data_x, data_y
 
@@ -101,8 +102,30 @@ def split_data(data: np.array):
     return train, dev, test
 
 
+def shuffle_data_set(x: np.array, y: np.array):
+    example_amount = x.shape[0]
+    shuffle_indexes = np.random.permutation(example_amount)
+    x = x[shuffle_indexes]
+    y = y[shuffle_indexes]
+
+    return x, y
+
+
 def load_preprocessed_dataset():
     flight_data_x, flight_data_y = load_preprocessed_sequences()
+
+    flight_data_x, flight_data_y = shuffle_data_set(flight_data_x, flight_data_y)
+
+    train_x, dev_x, test_x = split_data(flight_data_x)
+    train_y, dev_y, test_y = split_data(flight_data_y)
+
+    return train_x, train_y, dev_x, dev_y, test_x, test_y
+
+
+def load_dataset():
+    flight_data_x, flight_data_y = load_preprocessed_sequences()
+
+    flight_data_x, flight_data_y = shuffle_data_set(flight_data_x, flight_data_y)
 
     train_x, dev_x, test_x = split_data(flight_data_x)
     train_y, dev_y, test_y = split_data(flight_data_y)
