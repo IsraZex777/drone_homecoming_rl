@@ -26,9 +26,6 @@ from .settings import (
     OUTPUT_DATA_COLUMNS
 )
 
-force_cpu_run = True
-if force_cpu_run:
-    tf.config.set_visible_devices([], 'GPU')
 
 
 class MovementLayer(layers.Layer):
@@ -70,3 +67,18 @@ def train_static_model():
 if __name__ == "__main__":
     # main()
     pass
+
+
+"""
+
+
+Hyperparameter     |Best Value So Far 
+dense_layer_amount |3                 
+dense_activation   |sigmoid           
+dense_1_units      |96                        
+adam_learning_rate |0.001                         
+dense_2_units      |224                         
+dense_3_units      |256          
+
+5.7440 * e^-5                           
+"""

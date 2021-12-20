@@ -23,10 +23,6 @@ from .settings import (
     INPUT_DATA_COLUMNS
 )
 
-force_cpu_run = True
-if force_cpu_run:
-    tf.config.set_visible_devices([], 'GPU')
-
 
 @print_exec_time
 def create_model() -> Model:

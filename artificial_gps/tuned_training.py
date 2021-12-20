@@ -8,10 +8,6 @@ from tensorflow.keras import (
     optimizers
 )
 
-from flight_recording import (
-    INPUT_DATA_COLUMNS
-)
-
 from .data import (
     load_preprocessed_dataset,
 )
@@ -22,7 +18,8 @@ from .utils import (
 
 from .settings import (
     INPUT_SEQUENCE_LEN,
-    OUTPUT_DATA_COLUMNS
+    OUTPUT_DATA_COLUMNS,
+    INPUT_DATA_COLUMNS
 )
 
 
@@ -34,29 +31,19 @@ def create_model_dynamic(hp: kt.HyperParameters) -> Model:
     :return:
     """
     model = Sequential()
-    dense_units_1 = hp.Int("dense_units_1", min_value=64, max_value=256, step=16)
-    dense_dropout_1 = hp.Float("dense_dropout_1", min_value=0, max_value=0.4, step=0.05)
-    dense_units_2 = hp.Int("dense_units_2", min_value=64, max_value=256, step=16)
-    dense_dropout_2 = hp.Float("dense_dropout_2", min_value=0, max_value=0.4, step=0.05)
-    dense_units_3 = hp.Int("dense_units_3", min_value=64, max_value=256, step=16)
-    dense_dropout_3 = hp.Float("dense_dropout_3", min_value=0, max_value=0.4, step=0.05)
-    dense_units_4 = hp.Int("dense_units_3", min_value=64, max_value=256, step=16)
-    dense_dropout_4 = hp.Float("dense_dropout_3", min_value=0, max_value=0.4, step=0.05)
-    dense_units_5 = hp.Int("dense_units_3", min_value=64, max_value=256, step=16)
-    dense_dropout_5 = hp.Float("dense_dropout_3", min_value=0, max_value=0.4, step=0.05)
+    dense_layer_amount = hp.Int("dense_layer_amount", min_value=1, max_value=4, step=1)
     dense_activation = hp.Choice("dense_activation", ["sigmoid", "relu", "tanh"])
 
     model.add(layers.Input(len(INPUT_DATA_COLUMNS)))
-    model.add(layers.Dense(dense_units_1, activation=dense_activation))
-    model.add(layers.Dropout(dense_dropout_1))
-    model.add(layers.Dense(dense_units_2, activation=dense_activation))
-    model.add(layers.Dropout(dense_dropout_2))
-    model.add(layers.Dense(dense_units_3, activation=dense_activation))
-    model.add(layers.Dropout(dense_dropout_3))
-    model.add(layers.Dense(dense_units_4, activation=dense_activation))
-    model.add(layers.Dropout(dense_dropout_4))
-    model.add(layers.Dense(dense_units_5, activation=dense_activation))
-    model.add(layers.Dropout(dense_dropout_5))
+    for layer_index in range(1, dense_layer_amount + 1):
+        units = hp.Int(f"dense_{layer_index}_units", min_value=64, max_value=256, step=32)
+
+        model.add(layers.Dense(units, activation=dense_activation))
+
+        if hp.Boolean(f"dense_{layer_index}_dropout"):
+            dropout_rate = hp.Float(f"dense_{layer_index}_dropout_rate", min_value=0, max_value=0.4, step=0.05)
+            model.add(layers.Dropout(dropout_rate))
+
     model.add(layers.Dense(len(OUTPUT_DATA_COLUMNS)))
 
     adam_learning_rate = hp.Choice("adam_learning_rate", [0.01, 0.001])
@@ -74,7 +61,7 @@ def create_model_tuner():
         hyperparameters=hp,
         tune_new_entries=True,
         objective="val_loss",
-        max_trials=10,
+        max_trials=100,
         overwrite=True,
         directory="./",
         project_name="artificial_gps_hp_tuner"
@@ -85,14 +72,14 @@ def create_model_tuner():
 
 @print_exec_time
 def train_tuned_model():
-    train_x, train_y, dev_x, dev_y, test_x, test_y = load_preprocessed_dataset()
+    train_x, train_y, dev_x, dev_y, test_x, test_y, scaler_x, scaler_y = load_preprocessed_dataset()
 
     tuner = create_model_tuner()
 
     tuner.search(train_x,
                  train_y,
-                 epochs=30,
-                 batch_size=64,
+                 epochs=50,
+                 batch_size=256,
                  validation_data=(dev_x, dev_y))
 
 
