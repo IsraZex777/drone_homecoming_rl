@@ -18,7 +18,8 @@ import os
 #                       ]
 
 
-INPUT_DATA_COLUMNS = ["gps_altitude", "gps_latitude", "gps_longitude",
+INPUT_DATA_COLUMNS = [
+                      "position_x", "position_y", "position_z",
                       "angular_acceleration_x", "angular_acceleration_y", "angular_acceleration_z",
                       "angular_velocity_x", "angular_velocity_y", "angular_velocity_z",
                       "linear_acceleration_x", "linear_acceleration_y", "linear_acceleration_z",
@@ -40,6 +41,7 @@ TIMESTAMP_INPUT_COLUMNS = [
     "magnetometer_timestamp",
     "rotor_timestamp"
 ]
+MAIN_TIMESTAMP_COLUMN = "motor_state_timestamp"
 
 MIN_X_POS = -200
 MAX_X_POS = 200

@@ -21,7 +21,7 @@ from .settings import (
     INPUT_SEQUENCE_LEN,
     INPUT_DATA_COLUMNS,
     OUTPUT_DATA_COLUMNS,
-    GLOBAL_DATA_FOLDER_PATH
+    DATA_FOLDER_PATH
 )
 
 
@@ -45,32 +45,38 @@ def convert_location_to_step(flight_output_df: pd.DataFrame):
     return coordinate_diff
 
 
+def load_sequences_from_file(csv_name: str):
+    if not csv_name.endswith("csv"):
+        return TypeError(f"File with unsupported extension, expected csv (file: {csv_name})")
+
+    csv_path = os.path.join(DATA_FOLDER_PATH, csv_name)
+    flight_df = pd.read_csv(csv_path)
+
+    x_df = flight_df[INPUT_DATA_COLUMNS].copy()
+    x_df = convert_timestamp_to_interval_seconds(x_df)
+
+    y_df = flight_df[OUTPUT_DATA_COLUMNS].copy()
+    y_df = convert_location_to_step(y_df)
+
+    # Drops the last record because the process is based of difference
+    x_df.drop(x_df.tail(1).index, inplace=True)
+    y_df.drop(y_df.tail(1).index, inplace=True)
+
+    return x_df, y_df
+
+
 def load_sequences():
-    all_csv_files = os.listdir(GLOBAL_DATA_FOLDER_PATH)
+    all_csv_files = os.listdir(DATA_FOLDER_PATH)
+
     flight_data_x_df = pd.DataFrame(columns=INPUT_DATA_COLUMNS)
     flight_data_y_df = pd.DataFrame(columns=OUTPUT_DATA_COLUMNS)
     for csv_name in all_csv_files:
-        if not csv_name.endswith("csv"):
-            continue
-
-        csv_path = os.path.join(GLOBAL_DATA_FOLDER_PATH, csv_name)
-        flight_df = pd.read_csv(csv_path)
-
-        x_df = flight_df[INPUT_DATA_COLUMNS].copy()
-        x_df = convert_timestamp_to_interval_seconds(x_df)
-
-        y_df = flight_df[OUTPUT_DATA_COLUMNS].copy()
-        y_df = convert_location_to_step(y_df)
-
-        # Drops the last record because the process is based of difference
-        x_df.drop(x_df.tail(1).index, inplace=True)
-        y_df.drop(y_df.tail(1).index, inplace=True)
-
-        flight_data_x_df = flight_data_x_df.append(x_df, ignore_index=True)
-        flight_data_y_df = flight_data_y_df.append(y_df, ignore_index=True)
-
-    # data_x = np.concatenate(flight_data_x)
-    # data_y = np.concatenate(flight_data_y)
+        try:
+            x_df, y_df = load_sequences_from_file(csv_name)
+            flight_data_x_df = flight_data_x_df.append(x_df, ignore_index=True)
+            flight_data_y_df = flight_data_y_df.append(y_df, ignore_index=True)
+        except TypeError:
+            pass
 
     return flight_data_x_df, flight_data_y_df
 
