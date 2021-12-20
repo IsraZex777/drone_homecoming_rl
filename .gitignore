@@ -3,6 +3,7 @@ venv/
 **/__pycache__/
 
 artificial_gps/data/
+artificial_gps/models/*
 # Truner results folder
 artificial_gps_hp_tuner/
 
