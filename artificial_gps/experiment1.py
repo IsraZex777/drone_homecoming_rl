@@ -9,10 +9,6 @@ from tensorflow.keras import (
     optimizers
 )
 
-from flight_recording import (
-    INPUT_DATA_COLUMNS
-)
-
 from .data import (
     load_preprocessed_dataset,
 )
@@ -23,12 +19,14 @@ from .utils import (
 
 from .settings import (
     INPUT_SEQUENCE_LEN,
-    OUTPUT_DATA_COLUMNS
+    OUTPUT_DATA_COLUMNS,
+    INPUT_DATA_COLUMNS
 )
 
 force_cpu_run = True
 if force_cpu_run:
     tf.config.set_visible_devices([], 'GPU')
+
 
 @print_exec_time
 def create_model() -> Model:
