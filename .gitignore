@@ -2,6 +2,9 @@ venv/
 **/.idea/
 **/__pycache__/
 
+# Private folder (to personal use)
+private/*
+
 artificial_gps/data/
 artificial_gps/models/*
 # Truner results folder
