@@ -29,7 +29,7 @@ def convert_timestamp_to_interval_seconds(flight_input_df: pd.DataFrame):
     """
     Converts the timestamp fields into the amount of seconds between each two timestamps
 
-    Note: each timestamp represents the amount of NANO seconds (1,000,000,000 nano seconds = 1 seconds)
+    Note: each timestamp represents the amount eof NANO seconds (1,000,000,000 nanoseconds = 1 seconds)
     """
     # Converts the start time to time interval
     next_time_df = flight_input_df[TIMESTAMP_INPUT_COLUMNS].shift(-1)
