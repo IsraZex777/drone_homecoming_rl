@@ -123,7 +123,7 @@ def load_preprocessed_dataset():
 
 
 def load_dataset():
-    flight_data_x, flight_data_y = load_preprocessed_sequences()
+    flight_data_x, flight_data_y = load_sequences()
 
     flight_data_x, flight_data_y = shuffle_data_set(flight_data_x, flight_data_y)
 
