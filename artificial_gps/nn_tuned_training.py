@@ -32,17 +32,17 @@ def create_model_dynamic(hp: kt.HyperParameters) -> Model:
     """
     model = Sequential()
     dense_layer_amount = hp.Int("dense_layer_amount", min_value=1, max_value=4, step=1)
-    dense_activation = hp.Choice("dense_activation", ["sigmoid", "relu", "tanh"])
+    # dense_activation = hp.Choice("dense_activation", ["sigmoid", "relu", "tanh"])
 
     model.add(layers.Input(len(INPUT_DATA_COLUMNS)))
     for layer_index in range(1, dense_layer_amount + 1):
         units = hp.Int(f"dense_{layer_index}_units", min_value=64, max_value=256, step=32)
 
-        model.add(layers.Dense(units, activation=dense_activation))
+        model.add(layers.Dense(units, activation="sigmoid"))
 
-        if hp.Boolean(f"dense_{layer_index}_dropout"):
-            dropout_rate = hp.Float(f"dense_{layer_index}_dropout_rate", min_value=0, max_value=0.4, step=0.05)
-            model.add(layers.Dropout(dropout_rate))
+        # if hp.Boolean(f"dense_{layer_index}_dropout"):
+        #     dropout_rate = hp.Float(f"dense_{layer_index}_dropout_rate", min_value=0, max_value=0.4, step=0.05)
+        #     model.add(layers.Dropout(dropout_rate))
 
     model.add(layers.Dense(len(OUTPUT_DATA_COLUMNS)))
 
@@ -61,7 +61,7 @@ def create_model_tuner():
         hyperparameters=hp,
         tune_new_entries=True,
         objective="val_loss",
-        max_trials=100,
+        max_trials=1000,
         overwrite=True,
         directory="./",
         project_name="artificial_gps_hp_tuner"
@@ -78,8 +78,8 @@ def train_tuned_model():
 
     tuner.search(train_x,
                  train_y,
-                 epochs=50,
-                 batch_size=256,
+                 epochs=30,
+                 batch_size=64,
                  validation_data=(dev_x, dev_y))
 
 

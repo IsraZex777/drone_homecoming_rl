@@ -7,7 +7,7 @@ import pandas as pd
 import airsim
 
 from .settings import (
-    INPUT_DATA_COLUMNS,
+    RECORD_COLUMNS,
     RECORDS_FOLDER,
     IS_SIM_CLOCK_FASTER
 )
@@ -29,7 +29,7 @@ def start_recording(stop_recording: threading.Event,
     client.confirmConnection()
     client.enableApiControl(True)
 
-    all_records = pd.DataFrame(columns=INPUT_DATA_COLUMNS)
+    all_records = pd.DataFrame(columns=RECORD_COLUMNS)
 
     while not stop_recording.is_set():
         multi_rotor_state = client.getMultirotorState(vehicle_name=drone_name)
@@ -83,12 +83,12 @@ def start_recording(stop_recording: threading.Event,
             rotor_state.rotors[3]["torque_scaler"],
             rotor_state.timestamp,
         ])
-        record = pd.DataFrame(data.reshape(1, -1), columns=INPUT_DATA_COLUMNS)
+        record = pd.DataFrame(data.reshape(1, -1), columns=RECORD_COLUMNS)
         all_records = all_records.append(record, ignore_index=True)
 
         if not IS_SIM_CLOCK_FASTER:
             time.sleep(0.015)
-    all_records.to_csv(os.path.join(RECORDS_FOLDER, f"{flight_name}_record_data.csv"))
+    all_records.to_csv(os.path.join(RECORDS_FOLDER, f"{flight_name}_record.csv"))
 
 
 def create_flight_recording(flight_name: str):
@@ -127,6 +127,27 @@ def record_flight_for_seconds(seconds: int,
     record_thread.join()
 
 
-if __name__ == "__main__":
-    # record_for_seconds("test_flight", 20)
-    pass
+class FlightRecorder:
+    def __init__(self, flight_name: str):
+        self._flight_name = flight_name
+        self._session_no = 1
+        self._recording_thread = None
+        self._recording_event = None
+
+    def start_flight_recording(self):
+        if self.is_recording_running():
+            raise ValueError("There is a recording running in the background")
+
+        record_file_name = f"{self._flight_name}_{self._session_no}"
+        self._recording_event = threading.Event()
+        self._recording_thread = threading.Thread(target=start_recording,
+                                                  args=[self._recording_event, record_file_name])
+        self._recording_thread.start()
+
+    def stop_and_save_recording_data(self):
+        if self._recording_thread and self._recording_event:
+            self._recording_event.set()
+            self._recording_thread.join()
+
+    def is_recording_running(self):
+        return self._recording_thread and self._recording_thread.is_alive()

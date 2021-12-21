@@ -4,6 +4,6 @@ from .flight_recording import (
 )
 from .generate_random_flight_path import generate_and_save_flight_data
 from .settings import (
-    INPUT_DATA_COLUMNS,
-    TIMESTAMP_INPUT_COLUMNS
+    RECORD_COLUMNS,
+    TIMESTAMP_COLUMNS
 )
