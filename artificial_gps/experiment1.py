@@ -39,7 +39,7 @@ def create_model() -> Model:
     model.add(layers.Dense(256, activation="sigmoid"))
     model.add(layers.Dense(len(OUTPUT_DATA_COLUMNS)))
 
-    optimizer = optimizers.Adam(learning_rate=0.01)
+    optimizer = optimizers.Adam(learning_rate=0.001)
     model.compile(loss='mean_squared_error', optimizer=optimizer)
 
     return model
@@ -47,7 +47,8 @@ def create_model() -> Model:
 
 @print_exec_time
 def train_static_model():
-    train_x, train_y, dev_x, dev_y, test_x, test_y, scaler_x, scaler_y = load_preprocessed_dataset()
+    train_x, train_y, dev_x, dev_y, test_x, test_y, scaler_x, scaler_y = load_preprocessed_dataset(INPUT_DATA_COLUMNS,
+                                                                                                   OUTPUT_DATA_COLUMNS)
 
     model = create_model()
 
@@ -58,6 +59,7 @@ def train_static_model():
               validation_data=(dev_x, dev_y))
 
     return model, scaler_x, scaler_y
+
 
 if __name__ == "__main__":
     # main()

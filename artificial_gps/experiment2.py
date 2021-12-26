@@ -9,10 +9,6 @@ from tensorflow.keras import (
     optimizers
 )
 
-from flight_recording import (
-    INPUT_DATA_COLUMNS
-)
-
 from .data import (
     load_preprocessed_dataset,
 )
@@ -23,6 +19,7 @@ from .utils import (
 
 from .settings import (
     INPUT_SEQUENCE_LEN,
+    INPUT_DATA_COLUMNS,
     OUTPUT_DATA_COLUMNS
 )
 
@@ -53,7 +50,7 @@ def create_model() -> Model:
 
 @print_exec_time
 def train_static_model():
-    train_x, train_y, dev_x, dev_y, test_x, test_y = load_preprocessed_dataset()
+    train_x, train_y, dev_x, dev_y, test_x, test_y = load_preprocessed_dataset(INPUT_DATA_COLUMNS, OUTPUT_DATA_COLUMNS)
 
     model = create_model()
 

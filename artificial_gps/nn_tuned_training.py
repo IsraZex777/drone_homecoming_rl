@@ -72,7 +72,8 @@ def create_model_tuner():
 
 @print_exec_time
 def train_tuned_model():
-    train_x, train_y, dev_x, dev_y, test_x, test_y, scaler_x, scaler_y = load_preprocessed_dataset()
+    train_x, train_y, dev_x, dev_y, test_x, test_y, scaler_x, scaler_y = load_preprocessed_dataset(INPUT_DATA_COLUMNS,
+                                                                                                   OUTPUT_DATA_COLUMNS)
 
     tuner = create_model_tuner()
 

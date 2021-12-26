@@ -37,8 +37,8 @@ MIN_TIMEOUT = 5
 MAX_TIMEOUT = 20
 
 POSITION_NUM = 0
-RUN_HOURS = 5
-RUN_MINUTES = RUN_HOURS * 60
+RUN_HOURS = 0
+RUN_MINUTES = RUN_HOURS * 60 + 30
 RUN_SECONDS = RUN_MINUTES * 60
 
 RECORDS_FOLDER = os.path.join(os.path.dirname(__file__), "recordings")
