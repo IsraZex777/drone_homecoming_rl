@@ -1,6 +1,7 @@
 venv/
 **/.idea/
 **/__pycache__/
+**/.ipynb_checkpoints/
 
 # Private folder (to personal use)
 private/*
