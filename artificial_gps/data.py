@@ -46,7 +46,7 @@ def load_flight_steps_from_file(csv_name: str, input_columns: list, output_colum
     @return:
     """
     if not csv_name.endswith("csv"):
-        return ValueError(f"File with unsupported extension, expected csv (file: {csv_name})")
+        raise ValueError(f"File with unsupported extension, expected csv (file: {csv_name})")
 
     csv_path = os.path.join(DATA_FOLDER_PATH, csv_name)
     flight_df = pd.read_csv(csv_path)
@@ -119,7 +119,7 @@ def split_data(data: np.array):
     """
     data_len = len(data)
 
-    train, dev, test = np.split(data, [int(.8 * data_len), int(.9 * data_len)])
+    train, dev, test = np.split(data, [int(.7 * data_len), int(.9 * data_len)])
 
     return train, dev, test
 
@@ -214,7 +214,8 @@ def load_preprocessed_flight_sequences(input_columns: list, output_columns: list
 
     for session_data_x, session_data_y in zip(x_sessions, y_sessions):
         normalized_data_x = scaler_x.transform(session_data_x)
-        normalized_data_y = scaler_y.transform(session_data_y)
+        # normalized_data_y = scaler_y.transform(session_data_y)
+        normalized_data_y = session_data_y
         steps_amount = normalized_data_x.shape[0]
 
         # Splits the data into data sequences
@@ -239,7 +240,7 @@ def load_preprocessed_rnn_dataset(input_columns: list, output_columns: list, seq
     flight_data_x, flight_data_y, scaler_x, scaler_y = load_preprocessed_flight_sequences(input_columns, output_columns,
                                                                                           sequence_length)
 
-    flight_data_x, flight_data_y = shuffle_data_set(flight_data_x, flight_data_y)
+    # flight_data_x, flight_data_y = shuffle_data_set(flight_data_x, flight_data_y)
 
     train_x, dev_x, test_x = split_data(flight_data_x)
     train_y, dev_y, test_y = split_data(flight_data_y)

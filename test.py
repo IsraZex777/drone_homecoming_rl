@@ -2,19 +2,55 @@ from flight_recording import (
     generate_and_save_flight_data,
     record_flight_for_seconds
 )
-from artificial_gps.model_tester import test_model_predictions
+# from artificial_gps.model_tester import test_model_predictions
 from artificial_gps.experiment1 import train_static_model
-from artificial_gps.data import load_preprocessed_sequences
 
 if __name__ == "__main__":
     # pass
     # # x, y = load_preprocessed_sequences()
     # # generate_and_save_flight_data()
     # record_flight_for_seconds(30)
-    test_model_predictions("1st", "flight_2021:12:19_22:46:08_record_data.csv")
-#
+    # test_model_predictions("1st", "flight_2021:12:13_19:12:03_record_data.csv")
+    generate_and_save_flight_data()
 
 """
+position:
+real offset:      [ -1.42592621   6.71397018 -49.65542221]
+predicted offset: [ -1.7327778   5.3146467 -49.34726  ]
+time offset(seconds): [9.00619213]
+position:
+real offset:      [ -1.42592621   6.71397018 -49.65542221]
+predicted offset: [ -0.78515923   8.03867    -50.511276  ]
+time offset(seconds): [9.00619213]
+
+position:
+real offset:      [ -1.42592621   6.71397018 -49.65542221]
+predicted offset: [ -1.6854455   7.1637073 -51.11185  ]
+time offset(seconds): [9.00619213]
+
+
+position:
+real offset:      [98.65604907 -5.62576985 -0.92707825]
+predicted offset: [97.21988   -6.2677016 -0.5869533]
+time offset(seconds): [9.012192]
+
+position:
+real offset:      [98.65604907 -5.62576985 -0.92707825]
+predicted offset: [99.27381    -3.6979086  -0.94279104]
+time offset(seconds): [9.012192]
+
+
+position:
+real offset:      [ 556.93078613 -195.85799408   13.61244202]
+predicted offset: [ 568.3318  -199.61075   15.87449]
+time offset(seconds): [30.00064]
+
+position:
+real offset:      [ 556.93078613 -195.85799408   13.61244202]
+predicted offset: [ 559.6442   -191.49083    13.459926]
+time offset(seconds): [30.00064]
+
+
 
 position:
 predicted offset: [-0.03224769  0.01676653 -0.01921006]

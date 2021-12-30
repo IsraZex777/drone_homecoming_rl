@@ -139,6 +139,7 @@ class FlightRecorder:
             raise ValueError("There is a recording running in the background")
 
         record_file_name = f"{self._flight_name}_{self._session_no}"
+        self._session_no += 1
         self._recording_event = threading.Event()
         self._recording_thread = threading.Thread(target=start_recording,
                                                   args=[self._recording_event, record_file_name])

@@ -7,6 +7,8 @@ DATA_FOLDER_NAME = "data"
 DATA_FOLDER_PATH = os.path.join(BASE_DIR, DATA_FOLDER_NAME)
 MODELS_FOLDER_NAME = "models"
 MODELS_FOLDER_PATH = os.path.join(BASE_DIR, MODELS_FOLDER_NAME)
+TUNERS_FOLDER_NAME = "tuners"
+TUNERS_FOLDER_PATH = os.path.join(BASE_DIR, TUNERS_FOLDER_NAME)
 
 INPUT_SEQUENCE_LEN = 10
 
@@ -25,7 +27,7 @@ INPUT_DATA_COLUMNS = ["angular_acceleration_x", "angular_acceleration_y", "angul
                       "rotor_d_speed", "rotor_d_thrust", "rotor_d_torque_scaler",
                       "rotor_timestamp"]
 
-INPUT_SEQUENCE_LENGTH = 10
+INPUT_SEQUENCE_LENGTH = 20
 INPUT_SEQUENCE_COLUMNS = ["angular_acceleration_x", "angular_acceleration_y", "angular_acceleration_z",
                           "linear_acceleration_x", "linear_acceleration_y", "linear_acceleration_z",
                           "orientation_x", "orientation_y", "orientation_z", "orientation_w", "motor_state_timestamp",

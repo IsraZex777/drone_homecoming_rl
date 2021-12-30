@@ -14,7 +14,8 @@ from .data import (
 from .settings import (
     INPUT_SEQUENCE_COLUMNS,
     OUTPUT_SEQUENCE_COLUMNS,
-    INPUT_SEQUENCE_LENGTH
+    INPUT_SEQUENCE_LENGTH,
+    TUNERS_FOLDER_PATH
 )
 from .utils import save_model_with_scalers_binary
 
@@ -80,10 +81,10 @@ def create_model_tuner():
         hyperparameters=hp,
         tune_new_entries=True,
         objective="val_loss",
-        max_trials=1200,
+        max_trials=200,
         overwrite=False,
-        directory="./",
-        project_name="artificial_gps_hp_tuner_lstm_25Dec_night",
+        directory=TUNERS_FOLDER_PATH,
+        project_name="artificial_gps_hp_tuner_lstm_27Dec_night",
         executions_per_trial=1,
     )
 
@@ -96,15 +97,16 @@ def train_save_tuned_lstm_model():
 
     tuner = create_model_tuner()
 
+    #
     tuner.search(train_x,
                  train_y,
-                 epochs=30,
+                 epochs=20,
                  batch_size=256,
                  validation_data=(dev_x, dev_y))
 
-    best_models_amount = 10
-    for index, model in enumerate(tuner.get_best_models(num_models=best_models_amount)):
-        save_model_with_scalers_binary(model, scaler_x, scaler_y, f"lstm_25Dec_{index}")
+    # best_models_amount = 10
+    # for index, model in enumerate(tuner.get_best_models(num_models=best_models_amount)):
+    #     save_model_with_scalers_binary(model, scaler_x, scaler_y, f"lstm_26Dec_{index}")
 
 
 def get_best_model():

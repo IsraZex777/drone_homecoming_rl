@@ -19,7 +19,8 @@ from .utils import (
 from .settings import (
     INPUT_SEQUENCE_LEN,
     OUTPUT_DATA_COLUMNS,
-    INPUT_DATA_COLUMNS
+    INPUT_DATA_COLUMNS,
+    TUNERS_FOLDER_PATH
 )
 
 
@@ -63,7 +64,7 @@ def create_model_tuner():
         objective="val_loss",
         max_trials=1000,
         overwrite=True,
-        directory="./",
+        directory=TUNERS_FOLDER_PATH,
         project_name="artificial_gps_hp_tuner"
     )
 

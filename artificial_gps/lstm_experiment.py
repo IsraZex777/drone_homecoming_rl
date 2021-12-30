@@ -34,7 +34,7 @@ def create_model(input_columns_amount: int, output_columns_amount: int, sequence
     # if layer_index < lstm_layers:  # Is not last later
     #     lstm_params["return_sequences"] = True
 
-    model.add(layers.LSTM(128, input_shape=(sequence_length, input_columns_amount)))
+    model.add(layers.LSTM(64, input_shape=(sequence_length, input_columns_amount)))
 
     # model.add(layers.Dropout(dropout_rate))
 
@@ -55,7 +55,7 @@ def train_lstm_model():
     # 🥰
     model.fit(train_x,
               train_y,
-              epochs=40,
+              epochs=30,
               batch_size=128,
               validation_data=(dev_x, dev_y))
 
