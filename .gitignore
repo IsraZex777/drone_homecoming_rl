@@ -7,7 +7,7 @@ private/*
 
 artificial_gps/data/
 artificial_gps/models/*
-artificial_gps/tuners/ # Truner results folder
+artificial_gps/tuners/* # Truner results folder
 
 # Flight data
 flight_recording/recordings/
