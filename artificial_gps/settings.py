@@ -1,6 +1,5 @@
 import os
 import tensorflow as tf
-from flight_recording import RECORD_COLUMNS
 
 BASE_DIR = os.path.dirname(__file__)
 DATA_FOLDER_NAME = "data"
@@ -27,7 +26,7 @@ INPUT_DATA_COLUMNS = ["angular_acceleration_x", "angular_acceleration_y", "angul
                       "rotor_d_speed", "rotor_d_thrust", "rotor_d_torque_scaler",
                       "rotor_timestamp"]
 
-INPUT_SEQUENCE_LENGTH = 20
+INPUT_SEQUENCE_LENGTH = 10
 INPUT_SEQUENCE_COLUMNS = ["angular_acceleration_x", "angular_acceleration_y", "angular_acceleration_z",
                           "linear_acceleration_x", "linear_acceleration_y", "linear_acceleration_z",
                           "orientation_x", "orientation_y", "orientation_z", "orientation_w", "motor_state_timestamp",

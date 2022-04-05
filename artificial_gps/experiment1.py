@@ -52,13 +52,13 @@ def train_static_model():
 
     model = create_model()
 
-    model.fit(train_x,
-              train_y,
-              epochs=100,
-              batch_size=256,
-              validation_data=(dev_x, dev_y))
+    history = model.fit(train_x,
+                        train_y,
+                        epochs=30,
+                        batch_size=256,
+                        validation_data=(dev_x, dev_y))
 
-    return model, scaler_x, scaler_y
+    return history, model, scaler_x, scaler_y
 
 
 if __name__ == "__main__":

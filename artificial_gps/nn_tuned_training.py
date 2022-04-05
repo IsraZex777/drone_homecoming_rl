@@ -5,7 +5,8 @@ from tensorflow.keras import (
     layers,
     Model,
     Sequential,
-    optimizers
+    optimizers,
+callbacks
 )
 
 from .data import (

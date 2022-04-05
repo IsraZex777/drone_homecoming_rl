@@ -113,3 +113,39 @@ def get_best_model():
     tuner = create_model_tuner()
     model = tuner.get_best_models()[0]
     return model
+
+
+"""
+
+
+
+ input_layer = layers.Input(shape=(None, hp.get("input_columns_amount")))
+    lstm_layer_1_units = hp.Int("lstm_layer_units", min_value=8, max_value=256, step=8)
+    layer = layers.LSTM(lstm_layer_1_units, return_sequences=True)(input_layer)
+    
+ 
+    dense_layers = hp.Int("dense_layers_amount", min_value=0, max_value=2)
+    dense_activation = hp.Choice("dense_activation", ["sigmoid", "relu", "sigmoid", "relu", "tanh"])
+
+    for layer_index in range(1, dense_layers + 1):
+        units = hp.Int(f"dense_{layer_index}_units", min_value=16, max_value=256, step=16)
+        layer = layers.Dense(units, activation=dense_activation)(layer)
+
+        if hp.Boolean(f"dense_{layer_index}_dropout"):
+            dropout_rate = hp.Float(f"dense_{layer_index}_dropout_rate", min_value=0, max_value=0.4, step=0.05)
+            layer = layers.Dropout(dropout_rate)(layer)
+
+    output_layer = layers.Dense(hp.get("output_columns_amount"))(layer)
+
+    learning_rate = hp.Choice("adam_learning_rate", [0.1, 0.2, 0.05, 1e-2, 1e-3, 5e-3, 5e-4])
+    if hp.Boolean(f"learning_rate_decay"):
+        learning_rate = optimizers.schedules.ExponentialDecay(
+            initial_learning_rate=learning_rate,
+            decay_steps=10000,
+            decay_rate=0.9)
+    
+    model = Model(inputs=input_layer, outputs=output_layer)
+    
+    model.compile(loss='mean_squared_error',
+                  optimizer=optimizers.Adam(learning_rate=learning_rate))
+"""

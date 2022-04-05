@@ -18,8 +18,8 @@ from artificial_gps.settings import (
 
 if __name__ == "__main__":
     pass
-    # model, scaler_x, scaler_y = train_static_model()
-    # save_model_with_scalers_binary(model, scaler_x, scaler_y, "wihtout_velocity_min_max")
+    # model, scaler_x, scaler_y = train_lstm_model()
+    # save_model_with_scalers_binary(model, scaler_x, scaler_y, "lstm_1Jan22_1")
     # test_model_predictions("wihtout_velocity",
     #                        "flight_2021:12:21_20:05:53_1_record.csv",
     #                        INPUT_DATA_COLUMNS,
@@ -35,11 +35,11 @@ if __name__ == "__main__":
     #               "flight_2021:12:21_20:05:53_1_record.csv",
     #               "flight_2021:12:26_21:37:31_1_record.csv"]
     # new_data = ["flight_2021:12:21_19:38:37_1_record.csv"]
-    # test_lstm_model_predictions("lstm_26Dec_0",
-    #                             trained_on[0],
-    #                             INPUT_SEQUENCE_COLUMNS,
-    #                             OUTPUT_SEQUENCE_COLUMNS,
-    #                             INPUT_SEQUENCE_LENGTH)
+    # predicted_offset_y, real_offset_y, time_offset = test_lstm_model_predictions("lstm_1Jan22_1",
+    #                                                                              trained_on[0],
+    #                                                                              INPUT_SEQUENCE_COLUMNS,
+    #                                                                              OUTPUT_SEQUENCE_COLUMNS,
+    #                                                                              INPUT_SEQUENCE_LENGTH)
     # test_model_predictions("lstm1",
     #                        "flight_2021:12:21_18:25:50_1_record.csv",
     #                        INPUT_SEQUENCE_COLUMNS,

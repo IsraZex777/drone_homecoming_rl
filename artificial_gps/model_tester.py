@@ -43,8 +43,7 @@ def test_model_predictions(model_name: str, data_csv_name: str, input_columns: l
                 f"position:\nreal offset:      {real}\npredicted offset: {predicted}\ntime offset(seconds): {time_offset}\n\n")
             index += 1
 
-    # time_intervals = flight_data_x[:, time_interval_index]
-    # print(time_intervals)
+    return predicted_offset, real_offset, time_offset
 
 
 def test_lstm_model_predictions(model_name: str,

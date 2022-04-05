@@ -1,5 +1,7 @@
+import datetime
 from flight_recording import (
     generate_and_save_flight_data,
+    generate_and_save_flight_intervals,
     record_flight_for_seconds
 )
 # from artificial_gps.model_tester import test_model_predictions
@@ -9,9 +11,10 @@ if __name__ == "__main__":
     # pass
     # # x, y = load_preprocessed_sequences()
     # # generate_and_save_flight_data()
-    # record_flight_for_seconds(30)
+    # record_flight_for_seconds(70, f"manual_{datetime.datetime.now().strftime('%d%b_%H:%M')}")
+    generate_and_save_flight_intervals()
     # test_model_predictions("1st", "flight_2021:12:13_19:12:03_record_data.csv")
-    generate_and_save_flight_data()
+    # record_flight_for_seconds(120)
 
 """
 position:

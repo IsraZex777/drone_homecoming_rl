@@ -143,7 +143,7 @@ def load_preprocessed_dataset(input_columns: list, output_columns: list):
     """
     flight_data_x, flight_data_y, scaler_x, scaler_y = load_preprocessed_flight_steps(input_columns, output_columns)
 
-    flight_data_x, flight_data_y = shuffle_data_set(flight_data_x, flight_data_y)
+    # flight_data_x, flight_data_y = shuffle_data_set(flight_data_x, flight_data_y)
 
     train_x, dev_x, test_x = split_data(flight_data_x)
     train_y, dev_y, test_y = split_data(flight_data_y)
