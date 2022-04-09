@@ -15,7 +15,7 @@ class DroneKeyboardInterface:
 
     def __init__(self):
         self.drone_controller = DroneController()
-        self.duration = .5
+        self.duration = .1
 
         self._key_command_mapping = {
             keyboard.Key.up: DroneActions.FORWARD,

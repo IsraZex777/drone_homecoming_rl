@@ -36,7 +36,7 @@ class DroneController:
 
         self.acceleration = 3.0
         self.angular_velocity = 90.0
-        self.duration = .5
+        self.duration = .4
 
         self.desired_velocity = np.zeros(3, dtype=np.float32)
 
@@ -79,7 +79,8 @@ class DroneController:
                 DroneActions.TURN_RIGHT:  0.0 + self.angular_velocity,
             }
 
-            self.move(action_to_velocity[action], action_to_yaw_rate[action])
+            self.desired_velocity = action_to_velocity[action]
+            self.move(self.desired_velocity, action_to_yaw_rate[action])
 
         #
         # if self._active_commands["forward"] or self._active_commands["backward"]:
