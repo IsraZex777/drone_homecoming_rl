@@ -1,6 +1,7 @@
 import random
 import logging
 import time
+import numpy as np
 
 from typing import List
 
@@ -45,7 +46,7 @@ class DroneBot:
             action = random.choice(self.actions)
             interval = random.choice(self.intervals)
             self.logger.info(
-                f"{self.recording_name} | Step: {step + 1}/{steps} Action: {action.value}, Interval: {interval}")
+                f"{self.recording_name} | Step: {step + 1}/{steps} Action: {action.value}, Interval: {interval: .2f}")
 
             curr_timestamp = time.time()
             while time.time() - curr_timestamp < interval:
@@ -59,10 +60,12 @@ class DroneBot:
 
 def activate_bot_simplified_1(logger: logging.Logger = logging.getLogger("dummy")):
     actions = [DroneActions.FORWARD, DroneActions.BACKWARD, DroneActions.DOWN, DroneActions.UP]
-    intervals = [10, 5, 2]
+    intervals = list(np.arange(1, 10, 0.4))
 
     bot = DroneBot(bot_name="bot-simplified-1", actions=actions, intervals=intervals, logger=logger)
-    bot.start_flight(5)
+
+    steps = random.choice(list(range(5, 10)))
+    bot.start_flight(steps)
 
 
 def activate_bot_simplified_2(logger: logging.Logger = logging.getLogger("dummy")):
@@ -74,10 +77,12 @@ def activate_bot_simplified_2(logger: logging.Logger = logging.getLogger("dummy"
                DroneActions.BACKWARD,
                DroneActions.DOWN,
                DroneActions.UP]
-    intervals = [12, 8, 4]
+    intervals = list(np.arange(1, 10, 0.4))
 
     bot = DroneBot(bot_name="bot-simplified-2", actions=actions, intervals=intervals, logger=logger)
-    bot.start_flight(5)
+
+    steps = random.choice(list(range(5, 10)))
+    bot.start_flight(steps)
 
 
 def main():

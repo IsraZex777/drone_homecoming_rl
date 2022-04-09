@@ -56,7 +56,6 @@ class DroneController:
 
     def handle_action(self, action: DroneActions):
         if action in [DroneActions.SPEED_LEVEL_1, DroneActions.SPEED_LEVEL_2, DroneActions.SPEED_LEVEL_3]:
-            print(action)
             self._base_speed = self._speed_level_to_speed[action]
         else:
             drone_orientation = ScipyRotation.from_quat(self._client.simGetVehiclePose().orientation.to_numpy_array())
