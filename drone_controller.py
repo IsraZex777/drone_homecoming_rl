@@ -25,7 +25,7 @@ class DroneController:
     High level drone controller with 6 discrete actions.
     """
 
-    def __init__(self, initial_location=""):
+    def __init__(self, initial_height: int = None, drone_name: str = ""):
 
         self._speed_level_to_speed = {
             DroneActions.SPEED_LEVEL_1: 3,
@@ -42,9 +42,12 @@ class DroneController:
 
         self._client = airsim.MultirotorClient()
         self._client.confirmConnection()
-        self._client.enableApiControl(True)
+        self._client.enableApiControl(True, vehicle_name=drone_name)
         self._client.simEnableWeather(False)
-        self._client.takeoffAsync()
+
+        # Take off to the input height
+        if initial_height:
+            self._client.moveToZAsync(-initial_height, 20).join()
 
     def move(self, velocity, yaw_rate):
         self._client.moveByVelocityAsync(velocity[0].item(), velocity[1].item(), velocity[2].item(), self.duration,
@@ -81,51 +84,3 @@ class DroneController:
 
             self.desired_velocity = action_to_velocity[action]
             self.move(self.desired_velocity, action_to_yaw_rate[action])
-
-        #
-        # if self._active_commands["forward"] or self._active_commands["backward"]:
-        #     forward_increment = forward_direction * self.duration * self.acceleration
-        #     if self._active_commands["forward"]:
-        #         self.desired_velocity += forward_increment
-        #     else:
-        #         self.desired_velocity -= forward_increment
-        # else:
-        #     forward_component = np.dot(self.desired_velocity, forward_direction) * forward_direction
-        #     self.desired_velocity -= self.friction * forward_component
-        #
-        # if self._active_commands["up"] or self._active_commands["down"]:
-        #     vertical_component =
-        #     vertical_component *= *self.acceleration
-        #     if self._active_commands["up"]:
-        #         self.desired_velocity += vertical_component
-        #     else:
-        #         self.desired_velocity -= vertical_component
-        # else:
-        #     self.desired_velocity[2] *= self.friction
-        #
-        # if self._active_commands["left"] or self._active_commands["right"]:
-        #     lateral_increment = left_direction * self.duration * self.acceleration
-        #     if self._active_commands["left"]:
-        #         self.desired_velocity += lateral_increment
-        #     else:
-        #         self.desired_velocity -= lateral_increment
-        # else:
-        #     left_component = np.dot(self.desired_velocity, left_direction) * left_direction
-        #     self.desired_velocity -= self.friction * left_component
-        #
-        # speed = np.linalg.norm(self.desired_velocity)
-        # if speed > self.max_speed:
-        #     self.desired_velocity = self.desired_velocity / speed * self.max_speed
-
-        # yaw_rate =
-        # if self._active_commands["turn left"]:
-        #     yaw_rate = -self.angular_velocity
-        # elif self._active_commands["turn right"]:
-        #     yaw_rate = self.angular_velocity
-
-        # self.move(self.desired_velocity, yaw_rate)
-
-
-if __name__ == "__main__":
-    controller = DroneController()
-    controller.fly_by_keyboard()

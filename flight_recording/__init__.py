@@ -1,6 +1,7 @@
 from .flight_recording import (
     create_flight_recording,
     record_flight_for_seconds,
+    FlightRecorder
 )
 from .generate_random_flight_path import (
     generate_and_save_flight_data,
