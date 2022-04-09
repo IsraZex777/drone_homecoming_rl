@@ -1,10 +1,14 @@
 venv/
 **/.idea/
 **/__pycache__/
+**/.ipynb_checkpoints/
+
+# Private folder (to personal use)
+private/*
 
 artificial_gps/data/
-# Truner results folder
-artificial_gps_hp_tuner/
+artificial_gps/models/*
+artificial_gps/tuners/*
 
 # Flight data
 flight_recording/recordings/

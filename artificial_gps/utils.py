@@ -1,6 +1,16 @@
-from functools import wraps
+import os
+import tensorflow as tf
 from keras.models import model_from_json
+from pickle import (
+    dump,
+    load
+)
+from functools import wraps
 from time import time
+
+from .settings import (
+    MODELS_FOLDER_PATH
+)
 
 
 def print_exec_time(func):
@@ -18,6 +28,50 @@ def print_exec_time(func):
         return output
 
     return wrapper
+
+
+def save_model_with_scalers_binary(model, scaler_x, scaler_y, model_name: str):
+    """
+    Saves models with the x, y scaler objects to a binary library using pickle library
+    """
+    model_file_name = f"{model_name}_model.pkl"
+    model_file_path = os.path.join(MODELS_FOLDER_PATH, model_file_name)
+    scaler_x_file_name = f"{model_name}_scaler_x.pkl"
+    scaler_x_file_path = os.path.join(MODELS_FOLDER_PATH, scaler_x_file_name)
+    scaler_y_file_name = f"{model_name}_scaler_y.pkl"
+    scaler_y_file_path = os.path.join(MODELS_FOLDER_PATH, scaler_y_file_name)
+
+    with open(model_file_path, "wb") as file:
+        dump(model, file)
+
+    with open(scaler_x_file_path, "wb") as file:
+        dump(scaler_x, file)
+
+    with open(scaler_y_file_path, "wb") as file:
+        dump(scaler_y, file)
+
+
+def load_model_with_scalers_binary(model_name: str):
+    """
+    Saves models with the x, y scaler objects to a binary library using pickle library
+    """
+    model_file_name = f"{model_name}_model.pkl"
+    model_file_path = os.path.join(MODELS_FOLDER_PATH, model_file_name)
+    scaler_x_file_name = f"{model_name}_scaler_x.pkl"
+    scaler_x_file_path = os.path.join(MODELS_FOLDER_PATH, scaler_x_file_name)
+    scaler_y_file_name = f"{model_name}_scaler_y.pkl"
+    scaler_y_file_path = os.path.join(MODELS_FOLDER_PATH, scaler_y_file_name)
+
+    with open(model_file_path, "rb") as file:
+        model = load(file)
+
+    with open(scaler_x_file_path, "rb") as file:
+        scaler_x = load(file)
+
+    with open(scaler_y_file_path, "rb") as file:
+        scaler_y = load(file)
+
+    return model, scaler_x, scaler_y
 
 
 def save_model(model, model_name):
