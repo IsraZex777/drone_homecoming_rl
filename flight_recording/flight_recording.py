@@ -27,7 +27,7 @@ def start_recording(stop_recording: threading.Event,
 
     client = airsim.MultirotorClient()
     client.confirmConnection()
-    client.enableApiControl(True)
+    # client.enableApiControl(True)
 
     all_records = pd.DataFrame(columns=RECORD_COLUMNS)
 
