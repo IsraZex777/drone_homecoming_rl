@@ -18,6 +18,7 @@ class DroneActions(Enum):
     SPEED_LEVEL_1 = "speed_level_1"
     SPEED_LEVEL_2 = "speed_level_2"
     SPEED_LEVEL_3 = "speed_level_3"
+    STOP = "stop"
 
 
 class DroneController:
@@ -61,6 +62,7 @@ class DroneController:
             drone_orientation = ScipyRotation.from_quat(self._client.simGetVehiclePose().orientation.to_numpy_array())
             yaw = drone_orientation.as_euler('zyx')[0]
             forward_direction = np.array([np.cos(yaw), np.sin(yaw), 0])
+            left_direction = np.array([np.cos(yaw - np.deg2rad(90)), np.sin(yaw - np.deg2rad(90)), 0])
 
             action_to_velocity = {
                 DroneActions.FORWARD: forward_direction * self.duration * self._base_speed,
@@ -68,18 +70,21 @@ class DroneController:
                 DroneActions.UP: drone_orientation.apply(np.array([0.0, 0.0, -1.0])) * self.duration * self._base_speed,
                 DroneActions.DOWN: -1 * drone_orientation.apply(
                     np.array([0.0, 0.0, -1.0])) * self.duration * self._base_speed,
-                DroneActions.TURN_LEFT: np.dot(self.desired_velocity, forward_direction) * forward_direction,
-                DroneActions.TURN_RIGHT: np.dot(self.desired_velocity, forward_direction) * forward_direction,
+                DroneActions.TURN_LEFT: drone_orientation.apply(np.zeros(3)),
+                DroneActions.TURN_RIGHT: drone_orientation.apply(np.zeros(3)),
+                DroneActions.STOP: drone_orientation.apply(np.zeros(3)),
             }
 
             action_to_yaw_rate = {
                 DroneActions.FORWARD: 0.0,
-                DroneActions.BACKWARD:  0.0,
-                DroneActions.UP:  0.0,
-                DroneActions.DOWN:  0.0,
+                DroneActions.BACKWARD: 0.0,
+                DroneActions.UP: 0.0,
+                DroneActions.DOWN: 0.0,
                 DroneActions.TURN_LEFT: 0.0 - self.angular_velocity,
-                DroneActions.TURN_RIGHT:  0.0 + self.angular_velocity,
+                DroneActions.TURN_RIGHT: 0.0 + self.angular_velocity,
+                DroneActions.STOP: 0.0,
             }
 
             self.desired_velocity = action_to_velocity[action]
+            print(self.desired_velocity)
             self.move(self.desired_velocity, action_to_yaw_rate[action])
