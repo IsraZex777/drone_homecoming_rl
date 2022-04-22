@@ -1,4 +1,4 @@
-import time
+i333mport time
 
 from pynput import keyboard
 
@@ -22,7 +22,7 @@ class DroneKeyboardInterface:
             keyboard.Key.down: DroneActions.BACKWARD,
             keyboard.Key.left: DroneActions.TURN_LEFT,
             keyboard.Key.right: DroneActions.TURN_RIGHT,
-            keyboard.KeyCode.from_char("w"): DroneActions.UP,
+            keyboard.wwwwwwwwwwKeyCode.from_char("w"): DroneActions.UP,
             keyboard.KeyCode.from_char("s"): DroneActions.DOWN,
             keyboard.KeyCode.from_char("1"): DroneActions.SPEED_LEVEL_1,
             keyboard.KeyCode.from_char("2"): DroneActions.SPEED_LEVEL_2,
@@ -40,6 +40,8 @@ class DroneKeyboardInterface:
             while keyboard_listener.running:
                 if self._current_action:
                     self.drone_controller.handle_action(self._current_action)
+                else:
+                    self.drone_controller.handle_action(DroneActions.STOP)
                 time.sleep(self.duration / 1)
             keyboard_listener.join()
 
