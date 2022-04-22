@@ -86,5 +86,4 @@ class DroneController:
             }
 
             self.desired_velocity = action_to_velocity[action]
-            print(self.desired_velocity)
             self.move(self.desired_velocity, action_to_yaw_rate[action])
