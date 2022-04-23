@@ -74,13 +74,14 @@ class DroneBot:
                 f"{self.recording_name} | Step: {step + 1}/{steps} Action: {action.value}, Interval: {interval: .2f}")
 
             self.apply_action_for_seconds(action, interval)
+            self.logger.info(f"{self.recording_name} | Goes for a break, break_time: {break_time: .2f}")
             self.apply_action_for_seconds(DroneActions.STOP, break_time)
 
         self.apply_action_for_seconds(DroneActions.STOP, self.recovery_time)
         self.recorder.stop_and_save_recording_data()
         self.logger.info(f"{self.recording_name} | Stopped recording")
 
-    def start_flight_in_zig_zag_with_breaks(self, steps: int = 5, break_time: float = 1):
+    def start_flight_in_zig_zag_with_breaks(self, steps: int = 5, break_time: float = 2):
         self.apply_action_for_seconds(DroneActions.STOP, self.recovery_time)
         self.logger.info(f"{self.recording_name} | Started recording")
         self.recorder.start_flight_recording()
@@ -92,9 +93,13 @@ class DroneBot:
                 f"{self.recording_name} | Step: {step + 1}/{steps} Action: {action.value}, Interval: {interval: .2f}")
 
             self.apply_action_for_seconds(action, interval)
+            self.logger.info(f"{self.recording_name} | Goes for a break, break_time: {break_time: .2f}")
             self.apply_action_for_seconds(DroneActions.STOP, break_time)
-            self.apply_action_for_seconds(random.choice([DroneActions.TURN_RIGHT,
-                                                         DroneActions.TURN_LEFT]), .5)
+
+            turn_action = random.choice([DroneActions.TURN_RIGHT, DroneActions.TURN_LEFT])
+            self.logger.info(
+                f"{self.recording_name} | Turns: {'left' if turn_action == DroneActions.TURN_LEFT else 'right'}")
+            self.apply_action_for_seconds(turn_action, .5)
 
         self.apply_action_for_seconds(DroneActions.STOP, self.recovery_time)
         self.recorder.stop_and_save_recording_data()
@@ -188,7 +193,7 @@ def activate_bot_expert_3(logger: logging.Logger = logging.getLogger("dummy")):
                ]
     intervals = list(np.arange(1, 10, 0.2))
 
-    bot = DroneBot(bot_name="bot-expert-2", actions=actions, intervals=intervals, logger=logger)
+    bot = DroneBot(bot_name="bot-expert-3", actions=actions, intervals=intervals, logger=logger)
 
     steps = random.choice(list(range(5, 10)))
     bot.start_flight_in_zig_zag_with_breaks(steps)
@@ -200,7 +205,7 @@ def main():
         # activate_bot_simplified_2,
         activate_bot_simplified_3,
         activate_bot_simplified_4,
-        # activate_bot_expert_1,
+        activate_bot_expert_1,
         activate_bot_expert_2,
         activate_bot_expert_3
     ]
