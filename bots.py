@@ -199,15 +199,28 @@ def activate_bot_expert_3(logger: logging.Logger = logging.getLogger("dummy")):
     bot.start_flight_in_zig_zag_with_breaks(steps)
 
 
+def activate_bot_train_1(logger: logging.Logger = logging.getLogger("dummy")):
+    actions = [DroneActions.FORWARD,
+               DroneActions.BACKWARD,
+               ]
+    intervals = list(np.arange(1, 10, 0.2))
+
+    bot = DroneBot(bot_name="bot-train-3", actions=actions, intervals=intervals, logger=logger)
+
+    steps = random.choice(list(range(5, 10)))
+    bot.start_flight_in_zig_zag_with_breaks(steps, break_time=5)
+
+
 def main():
     bots = [
         # activate_bot_simplified_1,
         # activate_bot_simplified_2,
-        activate_bot_simplified_3,
-        activate_bot_simplified_4,
-        activate_bot_expert_1,
-        activate_bot_expert_2,
-        activate_bot_expert_3
+        # activate_bot_simplified_3,
+        # activate_bot_simplified_4,
+        # activate_bot_expert_1,
+        # activate_bot_expert_2,
+        # activate_bot_expert_3,
+        activate_bot_train_1
     ]
 
     logger = create_general_logger("bots_recording")
