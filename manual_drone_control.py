@@ -40,6 +40,8 @@ class DroneKeyboardInterface:
             while keyboard_listener.running:
                 if self._current_action:
                     self.drone_controller.handle_action(self._current_action)
+                else:
+                    self.drone_controller.handle_action(DroneActions.STOP)
                 time.sleep(self.duration / 1)
             keyboard_listener.join()
 
