@@ -205,10 +205,10 @@ def activate_bot_train_1(logger: logging.Logger = logging.getLogger("dummy")):
                ]
     intervals = list(np.arange(1, 10, 0.2))
 
-    bot = DroneBot(bot_name="bot-train-3", actions=actions, intervals=intervals, logger=logger)
+    bot = DroneBot(bot_name="bot-train-1", actions=actions, intervals=intervals, logger=logger)
 
     steps = random.choice(list(range(5, 10)))
-    bot.start_flight_in_zig_zag_with_breaks(steps, break_time=5)
+    bot.start_flight_in_zig_zag_with_breaks(steps, break_time=6)
 
 
 def main():
