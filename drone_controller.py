@@ -9,16 +9,16 @@ from scipy.spatial.transform import Rotation as ScipyRotation
 
 @unique
 class DroneActions(Enum):
-    FORWARD = "forward"
-    BACKWARD = "backward"
-    TURN_LEFT = "turn_left"
-    TURN_RIGHT = "turn_right"
-    UP = "up"
-    DOWN = "down"
-    SPEED_LEVEL_1 = "speed_level_1"
-    SPEED_LEVEL_2 = "speed_level_2"
-    SPEED_LEVEL_3 = "speed_level_3"
-    STOP = "stop"
+    FORWARD = 0
+    BACKWARD = 1
+    TURN_LEFT = 2
+    TURN_RIGHT = 3
+    UP = 4
+    DOWN = 5
+    STOP = 6
+    SPEED_LEVEL_1 = 6
+    SPEED_LEVEL_2 = 6
+    SPEED_LEVEL_3 = 6
 
 
 class DroneController:
@@ -31,7 +31,7 @@ class DroneController:
         self._speed_level_to_speed = {
             DroneActions.SPEED_LEVEL_1: 3,
             DroneActions.SPEED_LEVEL_2: 5,
-            DroneActions.SPEED_LEVEL_3: 10,
+            DroneActions.SPEED_LEVEL_3: 5,
         }
         self._base_speed = self._speed_level_to_speed[DroneActions.SPEED_LEVEL_2]
 
