@@ -72,11 +72,11 @@ class AirSimDroneEnvironment(gym.Env):
         self.observer.reset_recording_data()
 
         has_collied = obs_state["has_collided"]
-        position = obs_state["position"]
+        distance = obs_state["distance"]
         obs_state = obs_state.drop(columns=["has_collided"])
 
         # cannot collied
-        if has_collied.any() or position < 0.2:
+        if has_collied.any() or distance.any() < 0.1:
             return obs_state, None, True, {"reason": "Has collied"}
 
         # Calculates reword

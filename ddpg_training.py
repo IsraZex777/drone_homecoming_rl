@@ -20,10 +20,15 @@ from constants import (
 from drone_controller import DroneActions
 from replay_memory import ReplayMemory
 from artificial_gps.settings import MODELS_FOLDER_PATH
-from utils import (
-    save_model,
-    load_model
-)
+
+
+def save_model(model, model_name):
+    model_json = model.to_json()
+    with open(f"{model_name}.json", "w") as json_file:
+        json_file.write(model_json)
+
+    model.save_weights(f"{model_name}.h5")
+
 
 def start_training(drone_name: str,
                    forward_path_csv_path: str,
