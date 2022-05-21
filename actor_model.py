@@ -53,7 +53,7 @@ def create_actor_model() -> tf.keras.Model:
 def make_actor_action(actor_model: tf.keras.Model,
                       state,
                       noise_object: OUActionNoise,
-                      epsilon: float = 0.3,
+                      epsilon: float = 0.35,
                       logger: logging.Logger = logging.getLogger("dummy")) -> Tuple[DroneActions, float]:
     """
     Chooses the based action using the input actor model

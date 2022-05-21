@@ -66,7 +66,8 @@ class AirSimDroneEnvironment(gym.Env):
         action_type = DroneActions(action_type_index)
 
         # takes action
-        self.controller.handle_action(action_type, action_duration, stop_duration=min(6, max(2,1.5 * action_duration)))
+        # self.controller.handle_action(action_type, action_duration, stop_duration=min(6, max(2,1.5 * action_duration)))
+        self.controller.handle_action(action_type, action_duration, stop_duration=0)
 
         obs_state = self.observer.get_recording_data()
         self.observer.reset_recording_data()
