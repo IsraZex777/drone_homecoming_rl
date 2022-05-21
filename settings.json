@@ -1,0 +1,20 @@
+{
+  "SettingsVersion": 1.2,
+  "SimMode": "Multirotor",
+  "ViewMode": "",
+  "ClockSpeed": 1,
+
+
+  "Vehicles": {
+    "drone1": {
+       "VehicleType": "SimpleFlight",
+       "Sensors": {
+          "Distance": {
+	     "SensorType": 5,
+		"Enabled" : true,
+		"DrawDebugPoints": true
+	    }
+	}
+    }
+}
+}

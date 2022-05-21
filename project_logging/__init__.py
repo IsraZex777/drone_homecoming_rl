@@ -26,6 +26,7 @@ def create_general_logger(logger_file_name: str, level=logging.DEBUG):
     logger.handlers = []
 
     logger.setLevel(level)
+    logger.propagate = False
 
     file_path = os.path.join(LOGGING_FOLDER_PATH, f"{logger_file_name}.txt")
     handler = RotatingFileHandler(file_path)

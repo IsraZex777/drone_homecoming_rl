@@ -24,9 +24,9 @@ class DroneKeyboardInterface:
             keyboard.Key.right: DroneActions.TURN_RIGHT,
             keyboard.KeyCode.from_char("w"): DroneActions.UP,
             keyboard.KeyCode.from_char("s"): DroneActions.DOWN,
-            keyboard.KeyCode.from_char("1"): DroneActions.SPEED_LEVEL_1,
-            keyboard.KeyCode.from_char("2"): DroneActions.SPEED_LEVEL_2,
-            keyboard.KeyCode.from_char("3"): DroneActions.SPEED_LEVEL_3,
+            # keyboard.KeyCode.from_char("1"): DroneActions.SPEED_LEVEL_1,
+            # keyboard.KeyCode.from_char("2"): DroneActions.SPEED_LEVEL_2,
+            # keyboard.KeyCode.from_char("3"): DroneActions.SPEED_LEVEL_3,
         }
         self._current_action = None
 
