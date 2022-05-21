@@ -49,7 +49,9 @@ class AirSimDroneEnvironment(gym.Env):
         self.controller = AgentDroneController(drone_name=drone_name)
 
     def reset(self):
-        self.controller.reset()
+        self.controller.reset(self.init_position_x,
+                              self.init_position_y,
+                              self.init_position_z,)
         self.observer.reset_recording_data()
 
         return self.forward_path_data

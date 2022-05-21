@@ -86,8 +86,17 @@ class DroneController:
         self.desired_velocity = action_to_velocity[action]
         self.move(self.desired_velocity, action_to_yaw_rate[action])
 
-    def reset(self) -> None:
+    def reset(self,
+              position_x: float = 0.0,
+              position_y: float = 0.0,
+              position_z: float = 0.0) -> None:
         self._client.reset()
         self._client.enableApiControl(True)
         self._client.armDisarm(True)
 
+        position = airsim.Vector3r(position_x,
+                                   position_y,
+                                   position_z)
+        heading = airsim.utils.to_quaternion(0, 0, 0)
+        pose = airsim.Pose(position, heading)
+        self._client.simSetVehiclePose(pose, True)

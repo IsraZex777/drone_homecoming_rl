@@ -23,5 +23,10 @@ class AgentDroneController:
         if action in stop_actions:
             time.sleep(stop_duration)
 
-    def reset(self):
-        self._controller.reset()
+    def reset(self,
+              position_x: float = 0.0,
+              position_y: float = 0.0,
+              position_z: float = 0.0) -> None:
+        self._controller.reset(position_x=position_x,
+                               position_y=position_y,
+                               position_z=position_z)
