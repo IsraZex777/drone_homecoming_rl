@@ -8,7 +8,7 @@ Transition = namedtuple('Transition',
 
 class ReplayMemory(object):
 
-    def __init__(self, capacity):
+    def __init__(self, capacity=10000):
         self.memory = deque([], maxlen=capacity)
 
     def push(self, *args):

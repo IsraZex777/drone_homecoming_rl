@@ -54,7 +54,7 @@ def record_sensors(state_collector: StateCollector,
             barometer_state.altitude,
             barometer_state.pressure,
             multi_rotor_state.collision.has_collided,
-            distance_state.distance / distance_state.max_distance,
+            distance_state.distance,
             multi_rotor_state.timestamp,
         )
 

@@ -58,7 +58,7 @@ class AirSimDroneEnvironment(gym.Env):
 
         action_type_vector, action_duration = action
 
-        action_type_index = tf.math.argmax(action_type_vector)
+        action_type_index = tf.math.argmax(action_type_vector).numpy()
         action_type = DroneActions(action_type_index)
 
         # takes action

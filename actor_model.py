@@ -1,3 +1,4 @@
+import logging
 import random
 import numpy as np
 import tensorflow as tf
@@ -6,6 +7,8 @@ from typing import Tuple
 from tensorflow.keras import (
     layers,
 )
+
+from ou_action_noice import OUActionNoise
 
 from constants import (
     action_type_amount,
@@ -50,38 +53,37 @@ def create_actor_model() -> tf.keras.Model:
 
 def make_actor_action(actor_model: tf.keras.Model,
                       state,
-                      noise_object,
-                      epsilon) -> Tuple[DroneActions, float]:
+                      noise_object: OUActionNoise,
+                      epsilon: float = 0.2,
+                      logger: logging.Logger = logging.getLogger("dummy")) -> Tuple[DroneActions, float]:
     """
     Chooses the based action using the input actor model
 
     Uses two methods to ensure exploration:
-        [] epsilon greedy - for the action types (which are discrete)
+        [] epsilon greedy - for the action types
         [] noice - for the action duration (which is continuous)
 
     @param actor_model:  Input actor model that chooses the actions
     @param state: Input observed state
     @param noise_object: Object that creates noice in order to make exploration
     @param epsilon: percent for action exploration
+    @param logger: Operation logger
     @return: Tuple of - action type index, action duration in seconds
     """
     action_type_vector, action_duration = actor_model(state)
 
-    # chooses random action type - in epsilon percent
+    # shuffles action types - in epsilon percent
     if random.random() < epsilon:
-        action_type_index = random.randint(0, action_type_amount - 1)
-    else:
-        action_type_index = tf.math.argmax(action_type_vector).numpy()
-
-    chosen_action_type = DroneActions(action_type_index)
+        logger.debug(f"Exploration: applies action type shuffle (following: epsilon greedy method[{epsilon}%])")
+        action_type_vector = tf.random.shuffle(action_type_vector)
 
     noise = noise_object()
     # Adding noise to action
-    sampled_actions = tf.squeeze(action_duration).numpy() + noise
+    sampled_actions = tf.squeeze(action_duration).numpy() + noise()
 
     # We make sure action is within bounds
     legal_action_duration = np.clip(sampled_actions,
                                     action_duration_lower_limit,
                                     action_duration_upper_limit)
 
-    return chosen_action_type, legal_action_duration[0]
+    return action_type_vector, legal_action_duration[0]
