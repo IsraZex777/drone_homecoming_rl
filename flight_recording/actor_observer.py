@@ -32,11 +32,16 @@ def record_sensors(state_collector: StateCollector,
     while not stop_recording.is_set():
         multi_rotor_state = client.getMultirotorState(vehicle_name=drone_name)
         barometer_state = client.getBarometerData(vehicle_name=drone_name)
+        distance_state = client.getDistanceSensorData(distance_sensor_name="Distance", vehicle_name=drone_name)
 
         state_collector.append_new_state(
             multi_rotor_state.gps_location.altitude,
             multi_rotor_state.gps_location.latitude,
             multi_rotor_state.gps_location.longitude,
+            multi_rotor_state.kinematics_estimated.orientation.x_val,
+            multi_rotor_state.kinematics_estimated.orientation.y_val,
+            multi_rotor_state.kinematics_estimated.orientation.z_val,
+            multi_rotor_state.kinematics_estimated.orientation.w_val,
             multi_rotor_state.kinematics_estimated.angular_acceleration.x_val,
             multi_rotor_state.kinematics_estimated.angular_acceleration.y_val,
             multi_rotor_state.kinematics_estimated.angular_acceleration.z_val,
@@ -46,24 +51,20 @@ def record_sensors(state_collector: StateCollector,
             multi_rotor_state.kinematics_estimated.linear_acceleration.x_val,
             multi_rotor_state.kinematics_estimated.linear_acceleration.y_val,
             multi_rotor_state.kinematics_estimated.linear_acceleration.z_val,
-            multi_rotor_state.kinematics_estimated.linear_velocity.x_val,
-            multi_rotor_state.kinematics_estimated.linear_velocity.y_val,
-            multi_rotor_state.kinematics_estimated.linear_velocity.z_val,
-            multi_rotor_state.kinematics_estimated.orientation.x_val,
-            multi_rotor_state.kinematics_estimated.orientation.y_val,
-            multi_rotor_state.kinematics_estimated.orientation.z_val,
-            multi_rotor_state.kinematics_estimated.orientation.w_val,
-            multi_rotor_state.timestamp,
             barometer_state.altitude,
-            barometer_state.pressure)
+            barometer_state.pressure,
+            multi_rotor_state.collision.has_collided,
+            distance_state.distance / distance_state.max_distance,
+            multi_rotor_state.timestamp,
+        )
 
         if not IS_SIM_CLOCK_FASTER:
             time.sleep(0.015)
 
 
 class ActorObserver:
-    def __init__(self, flight_name: str):
-        self._flight_name = flight_name
+    def __init__(self, drone_name: str):
+        self._drone_name = drone_name
         self._state_collector = StateCollector()
 
         self._recording_thread = None
@@ -77,13 +78,15 @@ class ActorObserver:
         self._recording_thread = threading.Thread(target=record_sensors,
                                                   args=[self._state_collector,
                                                         self._recording_event,
-                                                        self._flight_name])
+                                                        self._drone_name])
         self._recording_thread.start()
 
-    def get_and_reset_recording_data(self) -> np.array:
+    def get_recording_data(self) -> np.array:
         states = self._state_collector.get_observed_state()
-        self._state_collector.empty_observed_state()
         return states
+
+    def reset_recording_data(self) -> None:
+        self._state_collector.empty_observed_state()
 
     def stop_recording_process(self):
         if self._recording_thread and self._recording_event:

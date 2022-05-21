@@ -1,6 +1,7 @@
 import threading
 import numpy as np
-
+import pandas as pd
+from settings import OBSERVATION_COLUMNS
 
 class StateCollector:
     def __init__(self):
@@ -22,9 +23,11 @@ class StateCollector:
         self.state = []
         self.state_access_lock.release()
 
-    def get_observed_state(self) -> np.array:
+    def get_observed_state(self) -> pd.DataFrame:
         self.state_access_lock.acquire()
-        data = np.copy(np.vstack(self.state))
+        data_np = np.copy(np.vstack(self.state))
         self.state_access_lock.release()
 
-        return data
+        data_df = pd.DataFrame(data_np, columns=OBSERVATION_COLUMNS)
+
+        return data_df

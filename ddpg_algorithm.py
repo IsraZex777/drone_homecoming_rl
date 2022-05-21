@@ -1,18 +1,26 @@
 import tensorflow as tf
 from typing import Tuple
 
+from actor import create_actor_model
+from critic import create_critic_model
+
 
 class DDPGAlgorithm:
-    def __init__(self, gamma=0.95):
+    def __init__(self, gamma: float = 0.95,
+                 actor_lr: float = 0.001,
+                 critic_lr: float = 0.002):
         self.gamma = gamma
 
-        self.target_actor = None
-        self.actor_model = None
-        self.target_critic = None
-        self.critic_model = None
+        self.actor_model = create_actor_model()
+        self.target_actor = create_actor_model()
+        self.critic_model = create_critic_model()
+        self.target_critic = create_critic_model()
 
-        self.actor_optimizer = None
-        self.critic_optimizer = None
+        self.target_actor.set_weights(self.actor_model.get_weights())
+        self.target_critic.set_weights(self.critic_model.get_weights())
+
+        self.actor_optimizer = tf.keras.optimizers.Adam(critic_lr)
+        self.critic_optimizer = tf.keras.optimizers.Adam(actor_lr)
 
     def _update_critic_weights(self, transition_batch: tuple) -> None:
         """
