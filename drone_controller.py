@@ -16,9 +16,9 @@ class DroneActions(Enum):
     UP = 4
     DOWN = 5
     STOP = 6
-    SPEED_LEVEL_1 = 6
-    SPEED_LEVEL_2 = 6
-    SPEED_LEVEL_3 = 6
+    # SPEED_LEVEL_1 = 6
+    # SPEED_LEVEL_2 = 6
+    # SPEED_LEVEL_3 = 6
 
 
 class DroneController:
@@ -27,13 +27,13 @@ class DroneController:
     """
 
     def __init__(self, initial_height: int = None, drone_name: str = ""):
-
-        self._speed_level_to_speed = {
-            DroneActions.SPEED_LEVEL_1: 3,
-            DroneActions.SPEED_LEVEL_2: 5,
-            DroneActions.SPEED_LEVEL_3: 5,
-        }
-        self._base_speed = self._speed_level_to_speed[DroneActions.SPEED_LEVEL_2]
+        # self._speed_level_to_speed = {
+        #     DroneActions.SPEED_LEVEL_1: 3,
+        #     DroneActions.SPEED_LEVEL_2: 5,
+        #     DroneActions.SPEED_LEVEL_3: 5,
+        # }
+        # self._base_speed = self._speed_level_to_speed[DroneActions.SPEED_LEVEL_2]
+        self._base_speed = 5
 
         self.acceleration = 3.0
         self.angular_velocity = 90.0
@@ -56,37 +56,37 @@ class DroneController:
                                          yaw_mode=airsim.YawMode(True, yaw_rate))
 
     def handle_action(self, action: DroneActions):
-        if action in [DroneActions.SPEED_LEVEL_1, DroneActions.SPEED_LEVEL_2, DroneActions.SPEED_LEVEL_3]:
-            self._base_speed = self._speed_level_to_speed[action]
-        else:
-            drone_orientation = ScipyRotation.from_quat(self._client.simGetVehiclePose().orientation.to_numpy_array())
-            yaw = drone_orientation.as_euler('zyx')[0]
-            forward_direction = np.array([np.cos(yaw), np.sin(yaw), 0])
-            left_direction = np.array([np.cos(yaw - np.deg2rad(90)), np.sin(yaw - np.deg2rad(90)), 0])
+        # if action in [DroneActions.SPEED_LEVEL_1, DroneActions.SPEED_LEVEL_2, DroneActions.SPEED_LEVEL_3]:
+        #     self._base_speed = self._speed_level_to_speed[action]
+        # else:
+        drone_orientation = ScipyRotation.from_quat(self._client.simGetVehiclePose().orientation.to_numpy_array())
+        yaw = drone_orientation.as_euler('zyx')[0]
+        forward_direction = np.array([np.cos(yaw), np.sin(yaw), 0])
+        left_direction = np.array([np.cos(yaw - np.deg2rad(90)), np.sin(yaw - np.deg2rad(90)), 0])
 
-            action_to_velocity = {
-                DroneActions.FORWARD: forward_direction * self.duration * self._base_speed,
-                DroneActions.BACKWARD: -1 * forward_direction * self.duration * self._base_speed,
-                DroneActions.UP: drone_orientation.apply(np.array([0.0, 0.0, -1.0])) * self.duration * self._base_speed,
-                DroneActions.DOWN: -1 * drone_orientation.apply(
-                    np.array([0.0, 0.0, -1.0])) * self.duration * self._base_speed,
-                DroneActions.TURN_LEFT: drone_orientation.apply(np.zeros(3)),
-                DroneActions.TURN_RIGHT: drone_orientation.apply(np.zeros(3)),
-                DroneActions.STOP: drone_orientation.apply(np.zeros(3)),
-            }
+        action_to_velocity = {
+            DroneActions.FORWARD: forward_direction * self.duration * self._base_speed,
+            DroneActions.BACKWARD: -1 * forward_direction * self.duration * self._base_speed,
+            DroneActions.UP: drone_orientation.apply(np.array([0.0, 0.0, -1.0])) * self.duration * self._base_speed,
+            DroneActions.DOWN: -1 * drone_orientation.apply(
+                np.array([0.0, 0.0, -1.0])) * self.duration * self._base_speed,
+            DroneActions.TURN_LEFT: drone_orientation.apply(np.zeros(3)),
+            DroneActions.TURN_RIGHT: drone_orientation.apply(np.zeros(3)),
+            DroneActions.STOP: drone_orientation.apply(np.zeros(3)),
+        }
 
-            action_to_yaw_rate = {
-                DroneActions.FORWARD: 0.0,
-                DroneActions.BACKWARD: 0.0,
-                DroneActions.UP: 0.0,
-                DroneActions.DOWN: 0.0,
-                DroneActions.TURN_LEFT: 0.0 - self.angular_velocity,
-                DroneActions.TURN_RIGHT: 0.0 + self.angular_velocity,
-                DroneActions.STOP: 0.0,
-            }
+        action_to_yaw_rate = {
+            DroneActions.FORWARD: 0.0,
+            DroneActions.BACKWARD: 0.0,
+            DroneActions.UP: 0.0,
+            DroneActions.DOWN: 0.0,
+            DroneActions.TURN_LEFT: 0.0 - self.angular_velocity,
+            DroneActions.TURN_RIGHT: 0.0 + self.angular_velocity,
+            DroneActions.STOP: 0.0,
+        }
 
-            self.desired_velocity = action_to_velocity[action]
-            self.move(self.desired_velocity, action_to_yaw_rate[action])
+        self.desired_velocity = action_to_velocity[action]
+        self.move(self.desired_velocity, action_to_yaw_rate[action])
 
 
 class AgentDroneController:
@@ -106,4 +106,3 @@ class AgentDroneController:
         # Waits till drone completely stops
         if action in stop_actions:
             time.sleep(stop_duration)
-
