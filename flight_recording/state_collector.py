@@ -1,7 +1,8 @@
 import threading
 import numpy as np
 import pandas as pd
-from settings import OBSERVATION_COLUMNS
+from .settings import OBSERVATION_COLUMNS
+
 
 class StateCollector:
     def __init__(self):

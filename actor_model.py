@@ -38,11 +38,10 @@ def create_actor_model() -> tf.keras.Model:
     hidden_layer = layers.Dense(256, activation="relu")(hidden_layer)
 
     action_type_hidden_layer = layers.Dense(16, activation="relu")(hidden_layer)
-    action_type_output = layers.Dense(len(action_type_amount), activation="softmax")(action_type_hidden_layer)
+    action_type_output = layers.Dense(action_type_amount, activation="softmax")(action_type_hidden_layer)
 
     action_duration_hidden_layer = layers.Dense(16, activation="relu")(hidden_layer)
     action_duration_output = layers.Dense(1,
-                                          activation="tanh",
                                           kernel_initializer=last_init)(action_duration_hidden_layer)
     action_duration_output = action_duration_output * action_duration_upper_limit
 
@@ -54,7 +53,7 @@ def create_actor_model() -> tf.keras.Model:
 def make_actor_action(actor_model: tf.keras.Model,
                       state,
                       noise_object: OUActionNoise,
-                      epsilon: float = 0.2,
+                      epsilon: float = 0.3,
                       logger: logging.Logger = logging.getLogger("dummy")) -> Tuple[DroneActions, float]:
     """
     Chooses the based action using the input actor model
@@ -75,11 +74,12 @@ def make_actor_action(actor_model: tf.keras.Model,
     # shuffles action types - in epsilon percent
     if random.random() < epsilon:
         logger.debug(f"Exploration: applies action type shuffle (following: epsilon greedy method[{epsilon}%])")
-        action_type_vector = tf.random.shuffle(action_type_vector)
+        shuffled_data = tf.random.shuffle(tf.squeeze(action_type_vector))
+        action_type_vector = tf.expand_dims(shuffled_data, 0)
 
     noise = noise_object()
     # Adding noise to action
-    sampled_actions = tf.squeeze(action_duration).numpy() + noise()
+    sampled_actions = action_duration.numpy() + noise
 
     # We make sure action is within bounds
     legal_action_duration = np.clip(sampled_actions,

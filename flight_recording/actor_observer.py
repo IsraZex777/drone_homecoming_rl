@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import airsim
 
-from state_collector import StateCollector
+from .state_collector import StateCollector
 
 from .settings import (
     RECORD_COLUMNS,
@@ -38,6 +38,9 @@ def record_sensors(state_collector: StateCollector,
             multi_rotor_state.gps_location.altitude,
             multi_rotor_state.gps_location.latitude,
             multi_rotor_state.gps_location.longitude,
+            multi_rotor_state.kinematics_estimated.position.x_val,
+            multi_rotor_state.kinematics_estimated.position.y_val,
+            multi_rotor_state.kinematics_estimated.position.z_val,
             multi_rotor_state.kinematics_estimated.orientation.x_val,
             multi_rotor_state.kinematics_estimated.orientation.y_val,
             multi_rotor_state.kinematics_estimated.orientation.z_val,

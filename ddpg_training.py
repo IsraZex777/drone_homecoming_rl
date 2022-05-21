@@ -51,25 +51,32 @@ def start_training(drone_name: str,
             action = action_type_vector, action_duration
 
             observation, reward, is_done, info = env.step(action)
-            state = return_home_agent.observation_to_state(observation)
-            logger.info(f"epoch: {ep},"
-                        f" prev_state: {prev_state:<20},"
-                        f" action_type: {DroneActions(tf.math.argmax(action_type_vector).numpy()).name: <10}"
-                        f" action_duration: {action_duration: .2f}"
-                        f" reward: {reward: .3f}"
-                        f" state: {state:<20}"
-                        f" is_done: {is_done}")
 
-            replay_memory.push(prev_state, action, reward, state)
+            if is_done:
+                logger.info(f"Epoch learn terminated because the following reason: {info['reason']}")
+            else:
+                state = return_home_agent.observation_to_state(observation)
 
-            episodic_reward += reward
+                logger.info(f"Train report(epoch: {ep}) \n"
+                            f"prev_state: {prev_state.numpy()} \n"
+                            f"action_type: {DroneActions(tf.math.argmax(action_type_vector[0]).numpy()).name} \n"
+                            f"action_duration: {action_duration} \n"
+                            f"reward: {reward: .3f} \n"
+                            f"state: {state.numpy()} \n"
+                            f"is_done: {is_done} \n")
 
-            if len(replay_memory) > batch_size * 2:
-                logger.debug(f"Updates actor and critic policies based on DDPG Algorithm "
-                             f"(data amount: {len(replay_memory)})")
-                ddpg_algo.update_actor_critic_weights(replay_memory.sample(batch_size))
+                replay_memory.push(prev_state, action_type_vector, action_duration, reward, state)
 
-            prev_state = state
+                episodic_reward += reward
+
+                if len(replay_memory) > batch_size * 2:
+                    logger.debug(f"Updates actor and critic policies based on DDPG Algorithm "
+                                 f"(data amount: {len(replay_memory)})")
+                    prev_states, action_types, action_durations, rewards, next_states = replay_memory.sample(batch_size)
+                    ddpg_algo.update_actor_critic_weights((prev_states, action_types,
+                                                           action_durations, rewards, next_states))
+
+                prev_state = state
 
         ep_reward_list.append(episodic_reward)
 

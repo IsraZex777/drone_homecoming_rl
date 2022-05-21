@@ -20,6 +20,7 @@ RECORD_COLUMNS = [
 
 OBSERVATION_COLUMNS = [
     "gps_altitude", "gps_latitude", "gps_longitude",
+    "position_x", "position_y", "position_z",
     "orientation_x", "orientation_y", "orientation_z", "orientation_w",
     "angular_acceleration_x", "angular_acceleration_y", "angular_acceleration_z",
     "angular_velocity_x", "angular_velocity_y", "angular_velocity_z",

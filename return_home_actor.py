@@ -18,24 +18,29 @@ class ReturnHomeActor:
         self.reset_forwarding_info()
 
     def reset_forwarding_info(self):
-        self.init_x_position = self.forward_sensors.iloc[0, "x_position"]
-        self.init_y_position = self.forward_sensors.iloc[0, "y_position"]
-        self.init_z_position = self.forward_sensors.iloc[0, "z_position"]
+        self.init_x_position = self.forward_sensors.iloc[0]["position_x"]
+        self.init_y_position = self.forward_sensors.iloc[0]["position_y"]
+        self.init_z_position = self.forward_sensors.iloc[0]["position_z"]
 
         # In the future predict this change
-        self.curr_x_position = self.forward_sensors.iloc[-1, "x_position"]
-        self.curr_y_position = self.forward_sensors.iloc[-1, "y_position"]
-        self.curr_z_position = self.forward_sensors.iloc[-1, "z_position"]
+        self.curr_x_position = self.forward_sensors.iloc[-1]["position_x"]
+        self.curr_y_position = self.forward_sensors.iloc[-1]["position_y"]
+        self.curr_z_position = self.forward_sensors.iloc[-1]["position_z"]
 
     def observation_to_state(self, obs_data: pd.DataFrame):
         # In the future predict this change
-        self.curr_x_position = obs_data.iloc[-1, "x_position"]
-        self.curr_y_position = obs_data.iloc[-1, "y_position"]
-        self.curr_z_position = obs_data.iloc[-1, "z_position"]
+        self.curr_x_position = obs_data.iloc[-1]["position_x"]
+        self.curr_y_position = obs_data.iloc[-1]["position_y"]
+        self.curr_z_position = obs_data.iloc[-1]["position_z"]
 
-        state = tf.Tensor(np.array([self.curr_x_position - self.init_x_position,
-                                    self.curr_y_position - self.init_y_position,
-                                    self.curr_z_position - self.init_z_position,
-                                    obs_data.iloc[-1, "distance"]]))
+        if "distance" in obs_data.iloc[-1]:
+            distance = int(obs_data.iloc[-1]["distance"])
+        else:
+            distance = 1
+
+        state = tf.convert_to_tensor(np.array([self.curr_x_position - self.init_x_position,
+                                               self.curr_y_position - self.init_y_position,
+                                               self.curr_z_position - self.init_z_position,
+                                               distance]))
 
         return state

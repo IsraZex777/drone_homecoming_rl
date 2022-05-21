@@ -28,14 +28,14 @@ class DDPGAlgorithm:
         @param transition_batch:
         @return:
         """
-        state_batch, action_batch, reward_batch, next_state_batch = transition_batch
+        state_batch, action_types, action_durations, reward_batch, next_state_batch = transition_batch
 
         with tf.GradientTape() as tape:
-            target_actions = self.target_actor(next_state_batch, training=True)
+            next_action_types, next_action_durations = self.target_actor(next_state_batch, training=True)
             y = reward_batch + self.gamma * self.target_critic(
-                [next_state_batch, target_actions], training=True
+                [next_state_batch, next_action_types, next_action_durations], training=True
             )
-            critic_value = self.critic_model([state_batch, action_batch], training=True)
+            critic_value = self.critic_model([state_batch, action_types, action_durations], training=True)
             critic_loss = tf.math.reduce_mean(tf.math.square(y - critic_value))
 
         critic_grad = tape.gradient(critic_loss, self.critic_model.trainable_variables)
@@ -49,11 +49,11 @@ class DDPGAlgorithm:
         @param transition_batch:
         @return:
         """
-        state_batch, action_batch, reward_batch, next_state_batch = transition_batch
+        state_batch, action_types, action_durations, reward_batch, next_state_batch = transition_batch
 
         with tf.GradientTape() as tape:
-            actions = self.actor_model(state_batch, training=True)
-            critic_value = self.critic_model([state_batch, actions], training=True)
+            next_action_types, next_action_durations = self.actor_model(state_batch, training=True)
+            critic_value = self.critic_model([state_batch, next_action_types, next_action_durations], training=True)
             # Used `-value` as we want to maximize the value given
             # by the critic for our actions
             actor_loss = -tf.math.reduce_mean(critic_value)
