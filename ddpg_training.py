@@ -1,4 +1,6 @@
 import logging
+import os.path
+
 import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
@@ -17,7 +19,11 @@ from constants import (
 )
 from drone_controller import DroneActions
 from replay_memory import ReplayMemory
-
+from artificial_gps.settings import MODELS_FOLDER_PATH
+from utils import (
+    save_model,
+    load_model
+)
 
 def start_training(drone_name: str,
                    forward_path_csv_path: str,
@@ -84,6 +90,13 @@ def start_training(drone_name: str,
         avg_reward = np.mean(ep_reward_list[-40:])
         print("Episode * {} * Avg Reward is ==> {}".format(ep, avg_reward))
         avg_reward_list.append(avg_reward)
+
+        # saves models
+        actor_model_folder = os.path.join(MODELS_FOLDER_PATH, "rl_actor_model")
+        critic_model_folder = os.path.join(MODELS_FOLDER_PATH, "rl_critic_model")
+
+        save_model(ddpg_algo.actor_model, actor_model_folder)
+        save_model(ddpg_algo.critic_model, critic_model_folder)
 
     # Plotting graph
     # Episodes versus Avg. Rewards

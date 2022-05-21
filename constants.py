@@ -10,7 +10,7 @@ action_duration_upper_limit = 10
 std_dev = 0.2
 
 
-batch_size = 5
+batch_size = 30
 total_episodes = 100
 # Discount factor for future rewards
 gamma = 0.99
