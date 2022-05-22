@@ -32,4 +32,5 @@ def main():
 
 
 if __name__ == "__main__":
+    # record_data()
     main()

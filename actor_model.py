@@ -31,8 +31,6 @@ def create_actor_model() -> tf.keras.Model:
     @return: tensorflow keras model
     """
     # Initialize weights between -3e-3 and 3-e3
-    last_init = tf.random_uniform_initializer(minval=-0.003, maxval=0.003)
-
     input_layer = layers.Input(shape=state_amount)
     hidden_layer = layers.Dense(256, activation="relu")(input_layer)
     hidden_layer = layers.Dense(256, activation="relu")(hidden_layer)
@@ -41,9 +39,7 @@ def create_actor_model() -> tf.keras.Model:
     action_type_output = layers.Dense(action_type_amount, activation="softmax")(action_type_hidden_layer)
 
     action_duration_hidden_layer = layers.Dense(16, activation="relu")(hidden_layer)
-    action_duration_output = layers.Dense(1,
-                                          kernel_initializer=last_init)(action_duration_hidden_layer)
-    action_duration_output = action_duration_output * action_duration_upper_limit
+    action_duration_output = layers.Dense(1, activation="sigmoid")(action_duration_hidden_layer)
 
     model = tf.keras.Model(input_layer, [action_type_output, action_duration_output])
 
@@ -79,11 +75,8 @@ def make_actor_action(actor_model: tf.keras.Model,
 
     noise = noise_object()
     # Adding noise to action
-    sampled_actions = action_duration.numpy() + noise
-
+    sampled_actions = action_duration.numpy()[0] * 10 + noise
+    # print(sampled_actions)
     # We make sure action is within bounds
-    legal_action_duration = np.clip(sampled_actions,
-                                    action_duration_lower_limit,
-                                    action_duration_upper_limit)
 
-    return action_type_vector, legal_action_duration[0]
+    return action_type_vector, sampled_actions
