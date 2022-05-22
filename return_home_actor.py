@@ -36,7 +36,7 @@ class ReturnHomeActor:
         if "distance" in obs_data.iloc[-1]:
             distance = int(obs_data.iloc[-1]["distance"])
         else:
-            distance = 1
+            distance = 40
 
         state = tf.convert_to_tensor(np.array([self.curr_x_position - self.init_x_position,
                                                self.curr_y_position - self.init_y_position,

@@ -41,13 +41,15 @@ class AirSimDroneEnvironment(gym.Env):
         self.initial_distance = math.sqrt(
             (self.last_position_x - self.init_position_x) ** 2 +
             (self.last_position_y - self.init_position_y) ** 2 +
-            (self.last_position_z - self.init_position_z)
+            abs(self.last_position_z - self.init_position_z)
         )
 
         self.observer = ActorObserver(drone_name=drone_name)
         self.observer.start_flight_recording()
 
         self.controller = AgentDroneController(drone_name=drone_name)
+        self.last_action = None
+        self.same_action_counter = 0
 
     def reset(self):
         self.controller.reset(self.last_position_x,
@@ -66,8 +68,8 @@ class AirSimDroneEnvironment(gym.Env):
         action_type = DroneActions(action_type_index)
 
         # takes action
-        # self.controller.handle_action(action_type, action_duration, stop_duration=min(6, max(2,1.5 * action_duration)))
-        self.controller.handle_action(action_type, action_duration, stop_duration=0)
+        self.controller.handle_action(action_type, action_duration, stop_duration=min(6, max(2, 1.5 * action_duration)))
+        # self.controller.handle_action(action_type, action_duration, stop_duration=0)
 
         obs_state = self.observer.get_recording_data()
         self.observer.reset_recording_data()
@@ -77,7 +79,7 @@ class AirSimDroneEnvironment(gym.Env):
         obs_state = obs_state.drop(columns=["has_collided"])
 
         # cannot collied
-        if has_collied.any() or distance.any() < 0.1:
+        if has_collied.any() or distance.any() < .5:
             return obs_state, None, True, {"reason": "Has collied"}
 
         # Calculates reword
@@ -87,7 +89,7 @@ class AirSimDroneEnvironment(gym.Env):
         pos_distance = math.sqrt(
             (curr_position_x - self.init_position_x) ** 2 +
             (curr_position_y - self.init_position_y) ** 2 +
-            (curr_position_z - self.init_position_z)
+            abs(curr_position_z - self.init_position_z)
         )
 
         distance_ratio = pos_distance / self.initial_distance
@@ -105,7 +107,16 @@ class AirSimDroneEnvironment(gym.Env):
         # Too close to border isn't good - to avoid collision
         # lowers reward if is too close to object
         curr_distance = obs_state.iloc[-1]["distance"]
-        if curr_distance < 1:
-            reward = reward * curr_distance
+        if curr_distance < 3:
+            reward = reward * (curr_distance / 3) ** 2
+
+        if self.last_action == action_type:
+            self.same_action_counter += 1
+        else:
+            self.same_action_counter = 0
+
+        if (self.last_action == DroneActions.TURN_LEFT and action_type == DroneActions.TURN_LEFT) or \
+                (self.last_action == DroneActions.TURN_RIGHT and action_type == DroneActions.TURN_RIGHT):
+            reward *= .90 ** self.same_action_counter
 
         return obs_state, reward, False, {}

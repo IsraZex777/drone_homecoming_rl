@@ -30,8 +30,19 @@ def save_model(model, model_name):
     model.save_weights(f"{model_name}.h5")
 
 
+def load_model(model_name):
+    with open(f'{model_name}.json', 'r') as json_file:
+        loaded_model_json = json_file.read()
+
+    loaded_model = tf.keras.models.model_from_json(loaded_model_json)
+    loaded_model.load_weights(f"{model_name}.h5")
+
+    return loaded_model
+
+
 def start_training(drone_name: str,
                    forward_path_csv_path: str,
+                   load_last_model: bool = False,
                    logger: logging.Logger = logging.getLogger("dummy")) -> None:
     ou_noise = OUActionNoise(mean=np.array([2]), std_deviation=float(.5) * np.ones(1))
     replay_memory = ReplayMemory()
@@ -39,6 +50,17 @@ def start_training(drone_name: str,
                                  forward_path_csv_path=forward_path_csv_path,
                                  logger=logger)
     ddpg_algo = DDPGAlgorithm()
+
+    if load_last_model:
+        actor_model_folder = os.path.join(MODELS_FOLDER_PATH, "rl_actor_model")
+        critic_model_folder = os.path.join(MODELS_FOLDER_PATH, "rl_critic_model")
+
+        ddpg_algo.actor_model = load_model(actor_model_folder)
+        ddpg_algo.critic_model = load_model(critic_model_folder)
+
+        ddpg_algo.target_actor.set_weights(ddpg_algo.actor_model.get_weights())
+        ddpg_algo.target_critic.set_weights(ddpg_algo.critic_model.get_weights())
+
     return_home_agent = ReturnHomeActor(forward_path_csv_path)
 
     ep_reward_list = []
@@ -68,13 +90,15 @@ def start_training(drone_name: str,
             else:
                 state = return_home_agent.observation_to_state(observation)
 
-                logger.info(f"Train report(epoch: {ep}) \n"
-                            f"prev_state: {prev_state.numpy()} \n"
-                            f"action_type: {DroneActions(tf.math.argmax(action_type_vector[0]).numpy()).name} \n"
-                            f"action_duration: {action_duration} \n"
-                            f"reward: {reward: .3f} \n"
-                            f"state: {state.numpy()} \n"
-                            f"is_done: {is_done} \n")
+                log = (f"Train episode: {ep}, "
+                       f"action_type: {DroneActions(tf.math.argmax(action_type_vector[0]).numpy()).name}, "
+                       f"action_duration: {action_duration}, "
+                       f"reward: {reward: .3f}, "
+                       f"is_done: {is_done}, "
+                       f"prev_state: {prev_state.numpy()}, "
+                       f"state: {state.numpy()}, "                       )
+                logger.info(log)
+                print(log)
 
                 replay_memory.push(prev_state, action_type_vector, action_duration, reward, state)
 

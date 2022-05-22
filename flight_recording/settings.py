@@ -1,5 +1,5 @@
 import os
-
+from vincenty import vincenty
 RECORD_COLUMNS = [
     "gps_altitude", "gps_latitude", "gps_longitude",
     "position_x", "position_y", "position_z",
