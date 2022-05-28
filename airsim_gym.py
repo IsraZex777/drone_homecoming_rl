@@ -1,5 +1,6 @@
 import logging
 import math
+import numpy as np
 
 import gym
 import airsim
@@ -12,6 +13,7 @@ from drone_controller import (
     DroneActions,
 )
 from agent_drone_controller import AgentDroneController
+from utils import calculate_yaw_diff
 
 
 class AirSimDroneEnvironment(gym.Env):
@@ -48,8 +50,6 @@ class AirSimDroneEnvironment(gym.Env):
         self.observer.start_flight_recording()
 
         self.controller = AgentDroneController(drone_name=drone_name)
-        self.last_action = None
-        self.same_action_counter = 0
 
     def reset(self):
         self.controller.reset(self.last_position_x,
@@ -95,7 +95,7 @@ class AirSimDroneEnvironment(gym.Env):
         distance_ratio = pos_distance / self.initial_distance
 
         # cannot collied
-        if curr_position_z > -.5:
+        if curr_position_z > -1:
             return obs_state, None, True, {"reason": "Gone too low"}
 
         # Cannot go more far than 1.5 of the initial distance
@@ -110,15 +110,15 @@ class AirSimDroneEnvironment(gym.Env):
         if curr_distance < 3:
             reward = reward * (curr_distance / 3) ** 2
 
-        if self.last_action == action_type:
-            self.same_action_counter += 1
-        else:
-            self.same_action_counter = 0
-
-        if (self.last_action == DroneActions.TURN_LEFT and action_type == DroneActions.TURN_LEFT) or \
-                (self.last_action == DroneActions.TURN_RIGHT and action_type == DroneActions.TURN_RIGHT):
-            reward *= .90 ** self.same_action_counter
-
-        self.last_action = action_type
+        yaw_diff = calculate_yaw_diff(np.array([obs_state.iloc[-1]["orientation_x"],
+                                                obs_state.iloc[-1]["orientation_y"],
+                                                obs_state.iloc[-1]["orientation_z"],
+                                                obs_state.iloc[-1]["orientation_w"]]),
+                                      np.array((curr_position_x, curr_position_y, curr_position_z)),
+                                      np.array((self.init_position_x, self.init_position_y, self.init_position_z)))
+        yaw_reward_factor = max(0.5, 1 - abs(yaw_diff))
+        print(yaw_reward_factor)
+        print(yaw_diff)
+        reward *= yaw_reward_factor
 
         return obs_state, reward, False, {}
