@@ -76,5 +76,5 @@ def make_actor_action(actor_model: tf.keras.Model,
     # Adding noise to action
     sampled_actions = abs(action_duration.numpy()[0] * action_duration_upper_limit + noise)
     sampled_actions = max(sampled_actions, action_duration_lower_limit)
-    
+
     return action_type_vector, sampled_actions

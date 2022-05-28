@@ -5,7 +5,7 @@ state_amount = 4
 
 action_type_amount = 6
 action_duration_lower_limit = .5
-action_duration_upper_limit = 10
+action_duration_upper_limit = 5
 
 max_distance = 10
 
