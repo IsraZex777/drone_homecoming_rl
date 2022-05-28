@@ -2,6 +2,10 @@ import pandas as pd
 import numpy as np
 import tensorflow as tf
 
+from constants import (
+    max_distance
+)
+
 
 class ReturnHomeActor:
     def __init__(self, forward_path_csv_path: str):
@@ -36,11 +40,15 @@ class ReturnHomeActor:
         if "distance" in obs_data.iloc[-1]:
             distance = int(obs_data.iloc[-1]["distance"])
         else:
-            distance = 40
+            distance = max_distance
 
         state = tf.convert_to_tensor(np.array([self.curr_x_position - self.init_x_position,
                                                self.curr_y_position - self.init_y_position,
                                                self.curr_z_position - self.init_z_position,
-                                               distance]))
+                                               obs_data.iloc[-1]["orientation_x"],
+                                               obs_data.iloc[-1]["orientation_y"],
+                                               obs_data.iloc[-1]["orientation_z"],
+                                               obs_data.iloc[-1]["orientation_w"],
+                                               distance / max_distance]))
 
         return state

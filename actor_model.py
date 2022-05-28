@@ -30,7 +30,6 @@ def create_actor_model() -> tf.keras.Model:
 
     @return: tensorflow keras model
     """
-    # Initialize weights between -3e-3 and 3-e3
     input_layer = layers.Input(shape=state_amount)
     hidden_layer = layers.Dense(256, activation="relu")(input_layer)
     hidden_layer = layers.Dense(256, activation="relu")(hidden_layer)
@@ -75,7 +74,7 @@ def make_actor_action(actor_model: tf.keras.Model,
 
     noise = noise_object()
     # Adding noise to action
-    sampled_actions = action_duration.numpy()[0] * 10 + noise
+    sampled_actions = abs(action_duration.numpy()[0] * 10 + noise)
     # print(sampled_actions)
     # We make sure action is within bounds
 

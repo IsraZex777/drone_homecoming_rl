@@ -119,4 +119,6 @@ class AirSimDroneEnvironment(gym.Env):
                 (self.last_action == DroneActions.TURN_RIGHT and action_type == DroneActions.TURN_RIGHT):
             reward *= .90 ** self.same_action_counter
 
+        self.last_action = action_type
+
         return obs_state, reward, False, {}

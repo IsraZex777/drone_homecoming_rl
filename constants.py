@@ -7,6 +7,8 @@ action_type_amount = 6
 action_duration_lower_limit = .5
 action_duration_upper_limit = 10
 
+max_distance = 10
+
 std_dev = 0.2
 
 
