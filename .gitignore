@@ -11,5 +11,7 @@ artificial_gps/data/
 artificial_gps/models/*
 artificial_gps/tuners/*
 
+rl_replay_memory/*
+
 # Flight data
 flight_recording/recordings/
