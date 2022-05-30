@@ -1,4 +1,7 @@
+import os
 import math
+import json
+import pickle
 import pandas as pd
 import numpy as np
 import tensorflow as tf
@@ -7,6 +10,11 @@ from scipy.spatial.transform import Rotation as ScipyRotation
 from constants import (
     max_distance
 )
+
+from settings import (
+    RL_REPLAY_MEMORY_FOLDER_PATH
+)
+from replay_memory import ReplayMemory
 
 
 def calculate_yaw_diff(curr_orientation: np.array,
@@ -47,3 +55,32 @@ def calculate_yaw_diff(curr_orientation: np.array,
     # yaw normalization
     yaw_diff /= 180
     return yaw_diff
+
+
+def save_replay_memory_to_file(file_name: str, memory: ReplayMemory) -> None:
+    """
+    Saves replay memory to file input file_name
+
+    @param file_name: target file name
+    @param memory: replay memory object
+    @return: None
+    """
+    dump = pickle.dumps(memory)
+    file_path = os.path.join(RL_REPLAY_MEMORY_FOLDER_PATH, f"{file_name}.bin")
+
+    with open(file_path, "bw") as file:
+        file.write(bytes(dump))
+
+
+def load_replay_memory_from_file(file_name: str) -> ReplayMemory:
+    """
+    Loads replay memory from file
+    @param file_name: source file name
+    @return:
+    """
+    file_path = os.path.join(RL_REPLAY_MEMORY_FOLDER_PATH, f"{file_name}.bin")
+
+    with open(file_path, "rb") as file:
+        dump = file.read()
+        memory = pickle.loads(dump)
+        return memory
