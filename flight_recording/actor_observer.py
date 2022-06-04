@@ -5,7 +5,7 @@ import airsim
 
 from .state_collector import StateCollector
 
-from ddpg.constants import simulator_time_factor
+from rl_global.constants import simulator_time_factor
 
 
 def record_sensors(state_collector: StateCollector,

@@ -211,7 +211,7 @@ def activate_bot_train_1(logger: logging.Logger = logging.getLogger("dummy")):
     bot.start_flight_in_zig_zag_with_breaks(steps, break_time=6)
 
 
-def main():
+def bots_main():
     bots = [
         # activate_bot_simplified_1,
         # activate_bot_simplified_2,
@@ -228,7 +228,3 @@ def main():
     while True:
         bot = random.choice(bots)
         bot(logger=logger)
-
-
-if __name__ == "__main__":
-    main()

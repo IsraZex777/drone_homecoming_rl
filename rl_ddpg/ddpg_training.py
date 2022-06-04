@@ -12,18 +12,18 @@ from .actor_model import (
     action_duration_to_real,
     action_type_to_real
 )
-from return_home_actor import ReturnHomeActor
+from rl_global.return_home_actor import ReturnHomeActor
 
 from .airsim_gym import AirSimDroneEnvironment
-from .constants import (
+from rl_global.constants import (
     total_episodes,
     total_epochs,
     batch_size
 )
-from replay_memory import ReplayMemory
+from rl_global.replay_memory import ReplayMemory
 from artificial_gps.settings import MODELS_FOLDER_PATH
 
-from utils import (
+from rl_global.utils import (
     load_replay_memory_from_file,
     save_replay_memory_to_file,
     is_replay_memory_file_exist,

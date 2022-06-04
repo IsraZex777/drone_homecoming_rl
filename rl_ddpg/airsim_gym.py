@@ -7,8 +7,8 @@ import pandas as pd
 
 from flight_recording.actor_observer import ActorObserver
 from drone_interface.agent_drone_controller import AgentDroneController
-from utils import calculate_yaw_diff
-from ddpg.constants import (
+from rl_global.utils import calculate_yaw_diff
+from rl_global.constants import (
     simulator_time_factor
 )
 

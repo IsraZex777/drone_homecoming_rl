@@ -2,11 +2,11 @@ import pandas as pd
 import numpy as np
 import tensorflow as tf
 
-from ddpg.constants import (
+from rl_global.constants import (
     max_distance
 )
 
-from utils import calculate_yaw_diff
+from .utils import calculate_yaw_diff
 
 
 class ReturnHomeActor:

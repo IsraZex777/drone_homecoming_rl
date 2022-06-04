@@ -10,7 +10,7 @@ from tensorflow.keras import (
 
 from .ou_action_noice import OUActionNoise
 
-from ddpg.constants import (
+from rl_global.constants import (
     action_type_amount,
     action_duration_upper_limit,
     action_duration_lower_limit,

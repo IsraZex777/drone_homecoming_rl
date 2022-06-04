@@ -1,11 +1,12 @@
 import os
 from flight_recording import record_flight_for_seconds
 from project_logging import create_general_logger
-from ddpg.ddpg_training import (
+from rl_ddpg.ddpg_training import (
     start_training,
     train_offline
 )
 
+from flight_recording.bots import bots_main
 from flight_recording.settings import RECORDS_FOLDER
 
 
@@ -39,7 +40,7 @@ def main_train_online():
     forward_path_csv_name = "forward_path-simple_forward_record.csv"
     forward_path_csv_path = os.path.join(RECORDS_FOLDER, forward_path_csv_name)
 
-    replay_memory_name = "2022_06_03_memory_5"
+    replay_memory_name = "2022_06_03_memory_6"
     training_name = "2022_05_04_1458"
     start_training(drone_name="drone1",
                    load_replay_memory=True,
@@ -52,6 +53,7 @@ def main_train_online():
 
 
 if __name__ == "__main__":
-    record_data()
+    # record_data()
     # main_train_offline()
-    # main_train_online()
+    main_train_online()
+    # bots_main()

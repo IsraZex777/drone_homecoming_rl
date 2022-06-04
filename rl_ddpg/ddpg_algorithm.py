@@ -1,7 +1,7 @@
 import tensorflow as tf
 
-from ddpg.actor_model import create_actor_model
-from ddpg.critic_model import create_critic_model
+from rl_ddpg.actor_model import create_actor_model
+from rl_ddpg.critic_model import create_critic_model
 
 
 class DDPGAlgorithm:

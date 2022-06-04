@@ -4,10 +4,10 @@ import pickle
 import numpy as np
 from scipy.spatial.transform import Rotation as ScipyRotation
 
-from ddpg.settings import (
+from rl_ddpg.settings import (
     RL_REPLAY_MEMORY_FOLDER_PATH
 )
-from replay_memory import ReplayMemory
+from rl_global.replay_memory import ReplayMemory
 
 
 def calculate_yaw_diff(curr_orientation: np.array,
@@ -66,7 +66,6 @@ def load_replay_memory_from_file(file_name: str) -> ReplayMemory:
 
     with open(file_path, "rb") as file:
         dump = file.read()
-        print(dump)
         memory = pickle.loads(dump)
         return memory
 
@@ -80,5 +79,3 @@ def is_replay_memory_file_exist(file_name: str) -> bool:
     file_path = os.path.join(RL_REPLAY_MEMORY_FOLDER_PATH, f"{file_name}.bin")
 
     return os.path.isfile(file_path)
-
-
