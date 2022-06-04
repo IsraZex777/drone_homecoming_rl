@@ -14,6 +14,8 @@ from .settings import (
     IS_SIM_CLOCK_FASTER
 )
 
+from constants import simulator_time_factor
+
 
 def record_sensors(state_collector: StateCollector,
                    stop_recording: threading.Event,
@@ -61,7 +63,7 @@ def record_sensors(state_collector: StateCollector,
             multi_rotor_state.timestamp,
         )
 
-        if not IS_SIM_CLOCK_FASTER:
+        if not simulator_time_factor == 1:
             time.sleep(0.015)
 
 

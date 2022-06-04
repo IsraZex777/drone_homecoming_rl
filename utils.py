@@ -42,18 +42,9 @@ def calculate_yaw_diff(curr_orientation: np.array,
     if abs(yaw_diff > 180):
         yaw_diff = 360 - abs(yaw_diff)
 
-    print("#########################")
-    print(current_yaw_degree)
-    print(yaw_to_look_at_degree)
-    print(yaw_dir_right)
-    print(yaw_diff)
-    print("~~~~~~~~~~~~~~~~~~~~~~~~~~`")
-
     # yaw dir
     yaw_diff *= 1 if yaw_dir_right else -1
 
-    # yaw normalization
-    yaw_diff /= 180
     return yaw_diff
 
 
@@ -84,3 +75,16 @@ def load_replay_memory_from_file(file_name: str) -> ReplayMemory:
         dump = file.read()
         memory = pickle.loads(dump)
         return memory
+
+
+def is_replay_memory_file_exist(file_name: str) -> bool:
+    """
+    checks weather replay memory file exists
+    @param file_name: replay memory file name
+    @return: True if exists, else False
+    """
+    file_path = os.path.join(RL_REPLAY_MEMORY_FOLDER_PATH, f"{file_name}.bin")
+
+    return os.path.isfile(file_path)
+
+

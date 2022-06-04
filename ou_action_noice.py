@@ -13,7 +13,7 @@ class OUActionNoise:
     def __call__(self):
         # Formula taken from https://www.wikipedia.org/wiki/Ornstein-Uhlenbeck_process.
         x = (
-                self.x_prev
+                0
                 + self.theta * (self.mean - self.x_prev) * self.dt
                 + self.std_dev * np.sqrt(self.dt) * np.random.normal(size=self.mean.shape)
         )
@@ -30,6 +30,6 @@ class OUActionNoise:
 
 
 if __name__ == "__main__":
-    ou_noise = OUActionNoise(mean=np.array([2]), std_deviation=float(.5) * np.ones(1))
+    ou_noise = OUActionNoise(mean=np.array([2]), std_deviation=float(.2) * np.ones(1))
     for i in range(1,10):
         print(ou_noise())

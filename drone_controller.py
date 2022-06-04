@@ -8,11 +8,11 @@ from scipy.spatial.transform import Rotation as ScipyRotation
 @unique
 class DroneActions(Enum):
     FORWARD = 0
-    BACKWARD = 1
-    TURN_LEFT = 2
-    TURN_RIGHT = 3
-    UP = 4
-    DOWN = 5
+    TURN_LEFT = 1
+    TURN_RIGHT = 2
+    UP = 3
+    DOWN = 4
+    BACKWARD = 5
     STOP = 6
     # SPEED_LEVEL_1 = 6
     # SPEED_LEVEL_2 = 6
