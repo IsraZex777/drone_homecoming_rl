@@ -72,12 +72,6 @@ class AirSimDroneEnvironment(gym.Env):
         distance = obs_state["distance"]
         obs_state = obs_state.drop(columns=["has_collided"])
 
-        # cannot collied
-        # print(distance.any() < 1)
-        # print(distance)
-        if has_collied.any() or distance.any() < 1:
-            return obs_state, 0, True, {"reason": "Has collied"}
-
         # Calculates reword
         curr_position_x = obs_state.iloc[-1]["position_x"]
         curr_position_y = obs_state.iloc[-1]["position_y"]
@@ -89,10 +83,6 @@ class AirSimDroneEnvironment(gym.Env):
         )
 
         distance_ratio = pos_distance / self.initial_distance
-
-        # cannot collied
-        if curr_position_z > -1:
-            return obs_state, 0, True, {"reason": "Gone too low"}
 
         reward = self.initial_distance / pos_distance
 
@@ -110,7 +100,17 @@ class AirSimDroneEnvironment(gym.Env):
                                       np.array((self.init_position_x, self.init_position_y, self.init_position_z)))
 
         yaw_reward_factor = ((1 - abs(yaw_diff / 180)) * .5) + .5
-        reward *= yaw_reward_factor
+        reward *= yaw_reward_factor ** 2
+
+        # cannot collied
+        if curr_position_z > -1:
+            return obs_state, reward * abs(curr_position_z), True, {"reason": "Gone too low"}
+
+        # cannot collied
+        # print(distance.any() < 1)
+        # print(distance)
+        if has_collied.any() or np.less(distance, [.7]).any():
+            return obs_state, reward, True, {"reason": "Has collied"}
 
         # Cannot go more far than 1.5 of the initial distance
         if distance_ratio > self.max_distance_ratio:
