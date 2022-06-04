@@ -2,12 +2,13 @@ import tensorflow as tf
 
 from rl_ddpg.actor_model import create_actor_model
 from rl_ddpg.critic_model import create_critic_model
-
+from rl_global.utils import update_target
 
 class DDPGAlgorithm:
     def __init__(self, gamma: float = 0.95,
                  actor_lr: float = 0.001,
-                 critic_lr: float = 0.002):
+                 critic_lr: float = 0.002,
+                 tau= 0.005):
         self.gamma = gamma
 
         self.actor_model = create_actor_model()
@@ -20,6 +21,8 @@ class DDPGAlgorithm:
 
         self.actor_optimizer = tf.keras.optimizers.Adam(critic_lr)
         self.critic_optimizer = tf.keras.optimizers.Adam(actor_lr)
+
+        self.tau = tau
 
     def _update_critic_weights(self, transition_batch: tuple) -> None:
         """
@@ -71,3 +74,14 @@ class DDPGAlgorithm:
         """
         self._update_critic_weights(transition_batch)
         self._update_actor_weights(transition_batch)
+
+    def update_target(self) -> None:
+        """
+        Updates the target models
+
+        @return: None
+        """
+        update_target(self.target_actor.variables, self.actor_model.variables, self.tau)
+        update_target(self.target_critic.variables, self.critic_model.variables, self.tau)
+
+

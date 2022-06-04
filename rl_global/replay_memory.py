@@ -1,7 +1,7 @@
 import random
 import tensorflow as tf
 from collections import namedtuple, deque
-from .constants import (
+from rl_global.constants import (
     action_type_amount,
     state_amount
 )
@@ -68,3 +68,4 @@ class ReplayMemory(object):
 
     def __len__(self):
         return len(self.memory)
+

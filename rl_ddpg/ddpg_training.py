@@ -14,7 +14,7 @@ from .actor_model import (
 )
 from rl_global.return_home_actor import ReturnHomeActor
 
-from .airsim_gym import AirSimDroneEnvironment
+from rl_global.airsim_gym import AirSimDroneEnvironment
 from rl_global.constants import (
     total_episodes,
     total_epochs,
@@ -27,35 +27,19 @@ from rl_global.utils import (
     load_replay_memory_from_file,
     save_replay_memory_to_file,
     is_replay_memory_file_exist,
+    save_model,
+    load_model
 )
 
 
-def save_model(model, model_name):
-    model_json = model.to_json()
-    with open(f"{model_name}.json", "w") as json_file:
-        json_file.write(model_json)
-
-    model.save_weights(f"{model_name}.h5")
-
-
-def load_model(model_name):
-    with open(f'{model_name}.json', 'r') as json_file:
-        loaded_model_json = json_file.read()
-
-    loaded_model = tf.keras.models.model_from_json(loaded_model_json)
-    loaded_model.load_weights(f"{model_name}.h5")
-
-    return loaded_model
-
-
-def start_training(drone_name: str,
-                   forward_path_csv_path: str,
-                   replay_memory_file_name: str = None,
-                   load_replay_memory: bool = False,
-                   update_replay_memory: bool = False,
-                   load_last_model: bool = False,
-                   training_name: str = "online_train",
-                   logger: logging.Logger = logging.getLogger("dummy")) -> None:
+def start_ddpg_training(drone_name: str,
+                        forward_path_csv_path: str,
+                        replay_memory_file_name: str = None,
+                        load_replay_memory: bool = False,
+                        update_replay_memory: bool = False,
+                        load_last_model: bool = False,
+                        training_name: str = "online_train",
+                        logger: logging.Logger = logging.getLogger("dummy")) -> None:
     ou_noise = OUActionNoise(mean=np.array([2]), std_deviation=float(.1) * np.ones(1))
 
     if load_replay_memory and is_replay_memory_file_exist(replay_memory_file_name):
@@ -130,6 +114,7 @@ def start_training(drone_name: str,
                     prev_states, action_types, action_durations, rewards, next_states = replay_memory.sample(batch_size)
                     ddpg_algo.update_actor_critic_weights((prev_states, action_types,
                                                            action_durations, rewards, next_states))
+                    ddpg_algo.update_target()
 
                 prev_state = state
 
@@ -158,9 +143,9 @@ def start_training(drone_name: str,
     plt.show()
 
 
-def train_offline(replay_memory_file_name: str,
-                  training_name: str,
-                  logger: logging.Logger = logging.getLogger("dummy")) -> None:
+def train_ddpg_offline(replay_memory_file_name: str,
+                       training_name: str,
+                       logger: logging.Logger = logging.getLogger("dummy")) -> None:
     """
     Trains actor and critic models based on previously collected replay memory.
     Without online interactive with the environment
@@ -170,8 +155,7 @@ def train_offline(replay_memory_file_name: str,
     @return:
     """
     replay_memory = load_replay_memory_from_file(replay_memory_file_name)
-    print(replay_memory)
-    print(len(replay_memory))
+
     ddpg_algo = DDPGAlgorithm()
 
     for ep in range(total_epochs):
@@ -180,8 +164,6 @@ def train_offline(replay_memory_file_name: str,
             prev_states, action_types, action_durations, rewards, next_states = batch_data
             ddpg_algo.update_actor_critic_weights((prev_states, action_types,
                                                    action_durations, rewards, next_states))
-
-
 
     # saves models
     actor_model_folder = os.path.join(MODELS_FOLDER_PATH, f"rl_{training_name}_actor")
