@@ -164,7 +164,8 @@ def train_ddpg_offline(replay_memory_file_name: str,
             prev_states, action_types, action_durations, rewards, next_states = batch_data
             ddpg_algo.update_actor_critic_weights((prev_states, action_types,
                                                    action_durations, rewards, next_states))
-
+            ddpg_algo.update_target()
+            
     # saves models
     actor_model_folder = os.path.join(MODELS_FOLDER_PATH, f"rl_{training_name}_actor")
     critic_model_folder = os.path.join(MODELS_FOLDER_PATH, f"rl_{training_name}_critic")
