@@ -2,8 +2,8 @@ import os
 from flight_recording import record_flight_for_seconds
 from project_logging import create_general_logger
 from rl_ddpg.ddpg_training import (
-    start_training,
-    train_offline
+    start_ddpg_training,
+    train_ddpg_offline
 )
 
 from flight_recording.bots import bots_main
@@ -28,9 +28,9 @@ def main_train_offline():
     force_dl_run_on_cpu()
     replay_memory_name = "2022_06_03_memory_5"
     training_name = "2022_05_04_1458"
-    train_offline(replay_memory_file_name=replay_memory_name,
-                  training_name=training_name,
-                  logger=logger)
+    train_ddpg_offline(replay_memory_file_name=replay_memory_name,
+                       training_name=training_name,
+                       logger=logger)
 
 
 def main_train_online():
@@ -40,16 +40,16 @@ def main_train_online():
     forward_path_csv_name = "forward_path-simple_forward_record.csv"
     forward_path_csv_path = os.path.join(RECORDS_FOLDER, forward_path_csv_name)
 
-    replay_memory_name = "2022_06_03_memory_6"
+    replay_memory_name = "2022_06_03_memory_7"
     training_name = "2022_05_04_1458"
-    start_training(drone_name="drone1",
-                   load_replay_memory=True,
-                   update_replay_memory=True,
-                   replay_memory_file_name=replay_memory_name,
-                   forward_path_csv_path=forward_path_csv_path,
-                   load_last_model=True,
-                   training_name=training_name,
-                   logger=logger)
+    start_ddpg_training(drone_name="drone1",
+                        load_replay_memory=False,
+                        update_replay_memory=True,
+                        replay_memory_file_name=replay_memory_name,
+                        forward_path_csv_path=forward_path_csv_path,
+                        load_last_model=False,
+                        training_name=training_name,
+                        logger=logger)
 
 
 if __name__ == "__main__":

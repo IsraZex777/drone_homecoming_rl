@@ -12,7 +12,7 @@ max_distance = 10
 
 std_dev = 0.2
 
-batch_size = 1000
+batch_size = 10
 total_episodes = 100
 total_epochs = 500
 # Discount factor for future rewards

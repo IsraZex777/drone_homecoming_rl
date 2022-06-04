@@ -1,23 +1,9 @@
 import airsim
 import numpy as np
 
-from enum import Enum, unique
 from scipy.spatial.transform import Rotation as ScipyRotation
 
-
-@unique
-class DroneActions(Enum):
-    FORWARD = 0
-    TURN_LEFT = 1
-    TURN_RIGHT = 2
-    UP = 3
-    DOWN = 4
-    BACKWARD = 5
-    STOP = 6
-    # SPEED_LEVEL_1 = 6
-    # SPEED_LEVEL_2 = 6
-    # SPEED_LEVEL_3 = 6
-
+from .drone_actions import DroneActions
 
 class DroneController:
     """
