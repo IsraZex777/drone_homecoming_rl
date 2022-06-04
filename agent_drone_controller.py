@@ -22,6 +22,8 @@ class AgentDroneController:
         # Waits till drone completely stops
         if action in stop_actions:
             self.apply_action_for_seconds(DroneActions.STOP, stop_duration)
+        else:
+            self.apply_action_for_seconds(DroneActions.STOP, .5)
 
     def reset(self,
               position_x: float = 0.0,

@@ -1,9 +1,8 @@
 {
   "SettingsVersion": 1.2,
   "SimMode": "Multirotor",
-  "ViewMode": "",
+  "ViewMode": "NoDisplay",
   "ClockSpeed": 1,
-
 
   "Vehicles": {
     "drone1": {
@@ -12,9 +11,11 @@
           "Distance": {
 	     "SensorType": 5,
 		"Enabled" : true,
+		"MaxDistance": 10,
 		"DrawDebugPoints": true
 	    }
 	}
     }
 }
+
 }

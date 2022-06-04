@@ -30,10 +30,11 @@ def create_actor_model() -> tf.keras.Model:
 
     @return: tensorflow keras model
     """
-    # Initialize weights between -3e-3 and 3-e3
+    last_init = tf.random_uniform_initializer(minval=-0.001, maxval=0.001)
+
     input_layer = layers.Input(shape=state_amount)
-    hidden_layer = layers.Dense(256, activation="relu")(input_layer)
-    hidden_layer = layers.Dense(256, activation="relu")(hidden_layer)
+    hidden_layer = layers.Dense(200, activation="relu")(input_layer)
+    hidden_layer = layers.Dense(200, activation="relu")(hidden_layer)
 
     action_type_hidden_layer = layers.Dense(16, activation="relu")(hidden_layer)
     action_type_output = layers.Dense(action_type_amount, activation="softmax")(action_type_hidden_layer)
@@ -49,8 +50,8 @@ def create_actor_model() -> tf.keras.Model:
 def make_actor_action(actor_model: tf.keras.Model,
                       state,
                       noise_object: OUActionNoise,
-                      epsilon: float = 0.35,
-                      logger: logging.Logger = logging.getLogger("dummy")) -> Tuple[DroneActions, float]:
+                      epsilon: float = 0.2,
+                      logger: logging.Logger = logging.getLogger("dummy")) -> Tuple[tf.Tensor, np.array]:
     """
     Chooses the based action using the input actor model
 
@@ -75,8 +76,19 @@ def make_actor_action(actor_model: tf.keras.Model,
 
     noise = noise_object()
     # Adding noise to action
-    sampled_actions = action_duration.numpy()[0] * 10 + noise
-    # print(sampled_actions)
-    # We make sure action is within bounds
+    action_duration = abs(action_duration.numpy()[0] + noise)
 
-    return action_type_vector, sampled_actions
+    # return action_type_vector, np.array([random.random()])
+    return action_type_vector, action_duration
+
+
+def action_duration_to_real(output_duration: np.array):
+    action_duration = abs(output_duration[0] * action_duration_upper_limit)
+    action_duration = max(action_duration, action_duration_lower_limit)
+    return action_duration
+
+
+def action_type_to_real(action_type: tf.Tensor) -> DroneActions:
+    action_type_index = tf.math.argmax(action_type[0]).numpy()
+    action_type = DroneActions(action_type_index)
+    return action_type

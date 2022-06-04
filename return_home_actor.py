@@ -1,6 +1,15 @@
+import math
 import pandas as pd
 import numpy as np
 import tensorflow as tf
+from scipy.spatial.transform import Rotation as ScipyRotation
+
+from constants import (
+    max_distance,
+    simulator_time_factor
+)
+
+from utils import calculate_yaw_diff
 
 
 class ReturnHomeActor:
@@ -27,20 +36,28 @@ class ReturnHomeActor:
         self.curr_y_position = self.forward_sensors.iloc[-1]["position_y"]
         self.curr_z_position = self.forward_sensors.iloc[-1]["position_z"]
 
-    def observation_to_state(self, obs_data: pd.DataFrame):
+    def observation_to_normalized_state(self, obs_data: pd.DataFrame):
         # In the future predict this change
         self.curr_x_position = obs_data.iloc[-1]["position_x"]
         self.curr_y_position = obs_data.iloc[-1]["position_y"]
         self.curr_z_position = obs_data.iloc[-1]["position_z"]
 
-        if "distance" in obs_data.iloc[-1]:
-            distance = int(obs_data.iloc[-1]["distance"])
-        else:
-            distance = 40
+        yaw_diff = calculate_yaw_diff(np.array([obs_data.iloc[-1]["orientation_x"],
+                                                obs_data.iloc[-1]["orientation_y"],
+                                                obs_data.iloc[-1]["orientation_z"],
+                                                obs_data.iloc[-1]["orientation_w"]]),
+                                      np.array((self.curr_x_position, self.curr_y_position, self.curr_z_position)),
+                                      np.array((self.init_x_position, self.init_y_position, self.init_z_position)))
 
-        state = tf.convert_to_tensor(np.array([self.curr_x_position - self.init_x_position,
-                                               self.curr_y_position - self.init_y_position,
-                                               self.curr_z_position - self.init_z_position,
-                                               distance]))
+        if "distance" in obs_data.iloc[-1]:
+            distance = float(obs_data.iloc[-1]["distance"])
+        else:
+            distance = max_distance
+
+        state = tf.convert_to_tensor(np.array([(self.curr_x_position - self.init_x_position) / 100,
+                                               (self.curr_y_position - self.init_y_position) / 100,
+                                               (self.curr_z_position - self.init_z_position) / 100,
+                                               yaw_diff / 180,
+                                               distance / max_distance]))
 
         return state
