@@ -1,8 +1,7 @@
 import tensorflow as tf
-from typing import Tuple
 
-from actor_model import create_actor_model
-from critic_model import create_critic_model
+from ddpg.actor_model import create_actor_model
+from ddpg.critic_model import create_critic_model
 
 
 class DDPGAlgorithm:

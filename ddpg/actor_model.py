@@ -8,16 +8,16 @@ from tensorflow.keras import (
     layers,
 )
 
-from ou_action_noice import OUActionNoise
+from .ou_action_noice import OUActionNoise
 
-from constants import (
+from ddpg.constants import (
     action_type_amount,
     action_duration_upper_limit,
     action_duration_lower_limit,
     state_amount,
 )
 
-from drone_controller import DroneActions
+from drone_interface.drone_controller import DroneActions
 
 
 def create_actor_model() -> tf.keras.Model:

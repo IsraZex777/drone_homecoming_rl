@@ -1,17 +1,10 @@
 import os
 import math
-import json
 import pickle
-import pandas as pd
 import numpy as np
-import tensorflow as tf
 from scipy.spatial.transform import Rotation as ScipyRotation
 
-from constants import (
-    max_distance
-)
-
-from settings import (
+from ddpg.settings import (
     RL_REPLAY_MEMORY_FOLDER_PATH
 )
 from replay_memory import ReplayMemory
@@ -73,6 +66,7 @@ def load_replay_memory_from_file(file_name: str) -> ReplayMemory:
 
     with open(file_path, "rb") as file:
         dump = file.read()
+        print(dump)
         memory = pickle.loads(dump)
         return memory
 

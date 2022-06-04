@@ -3,18 +3,12 @@ import math
 import numpy as np
 
 import gym
-import airsim
 import pandas as pd
 
-import tensorflow as tf
-
 from flight_recording.actor_observer import ActorObserver
-from drone_controller import (
-    DroneActions,
-)
-from agent_drone_controller import AgentDroneController
+from drone_interface.agent_drone_controller import AgentDroneController
 from utils import calculate_yaw_diff
-from constants import (
+from ddpg.constants import (
     simulator_time_factor
 )
 

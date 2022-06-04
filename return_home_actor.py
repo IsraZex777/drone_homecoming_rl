@@ -1,12 +1,9 @@
-import math
 import pandas as pd
 import numpy as np
 import tensorflow as tf
-from scipy.spatial.transform import Rotation as ScipyRotation
 
-from constants import (
-    max_distance,
-    simulator_time_factor
+from ddpg.constants import (
+    max_distance
 )
 
 from utils import calculate_yaw_diff

@@ -1,14 +1,12 @@
 import os
 from flight_recording import record_flight_for_seconds
 from project_logging import create_general_logger
-from ddpg_training import (
+from ddpg.ddpg_training import (
     start_training,
     train_offline
 )
 
 from flight_recording.settings import RECORDS_FOLDER
-
-from settings import RL_REPLAY_MEMORY_FOLDER_PATH
 
 
 def record_data():
@@ -54,6 +52,6 @@ def main_train_online():
 
 
 if __name__ == "__main__":
-    # record_data()
+    record_data()
     # main_train_offline()
-    main_train_online()
+    # main_train_online()

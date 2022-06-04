@@ -1,6 +1,3 @@
-from drone_controller import DroneActions
-from ou_action_noice import OUActionNoise
-
 state_amount = 5
 
 action_type_amount = 5

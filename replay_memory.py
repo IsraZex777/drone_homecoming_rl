@@ -1,7 +1,7 @@
 import random
 import tensorflow as tf
 from collections import namedtuple, deque
-from constants import (
+from ddpg.constants import (
     action_type_amount,
     state_amount
 )

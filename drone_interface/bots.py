@@ -7,7 +7,7 @@ from typing import List
 
 from project_logging import create_general_logger
 from flight_recording import FlightRecorder
-from drone_controller import (
+from drone_interface.drone_controller import (
     DroneController,
     DroneActions,
 )

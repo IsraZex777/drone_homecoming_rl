@@ -3,7 +3,7 @@ from tensorflow.keras import (
     layers,
 )
 
-from constants import (
+from ddpg.constants import (
     action_type_amount,
     state_amount,
 )

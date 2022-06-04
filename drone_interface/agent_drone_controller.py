@@ -1,5 +1,5 @@
 import time
-from drone_controller import (
+from drone_interface.drone_controller import (
     DroneActions,
     DroneController
 )

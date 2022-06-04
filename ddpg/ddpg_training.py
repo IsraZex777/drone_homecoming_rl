@@ -1,27 +1,25 @@
 import logging
 import os.path
-import random
 
 import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
 
-from ddpg_algorithm import DDPGAlgorithm
-from ou_action_noice import OUActionNoise
-from actor_model import (
+from .ddpg_algorithm import DDPGAlgorithm
+from .ou_action_noice import OUActionNoise
+from .actor_model import (
     make_actor_action,
     action_duration_to_real,
     action_type_to_real
 )
 from return_home_actor import ReturnHomeActor
 
-from airsim_gym import AirSimDroneEnvironment
-from constants import (
+from .airsim_gym import AirSimDroneEnvironment
+from .constants import (
     total_episodes,
     total_epochs,
     batch_size
 )
-from drone_controller import DroneActions
 from replay_memory import ReplayMemory
 from artificial_gps.settings import MODELS_FOLDER_PATH
 
