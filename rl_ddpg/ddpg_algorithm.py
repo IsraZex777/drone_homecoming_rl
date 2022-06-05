@@ -4,11 +4,12 @@ from rl_ddpg.actor_model import create_actor_model
 from rl_ddpg.critic_model import create_critic_model
 from rl_global.utils import update_target
 
+
 class DDPGAlgorithm:
-    def __init__(self, gamma: float = 0.95,
-                 actor_lr: float = 0.001,
-                 critic_lr: float = 0.002,
-                 tau= 0.005):
+    def __init__(self, gamma: float = 0.99,
+                 actor_lr: float = 0.0005,
+                 critic_lr: float = 0.001,
+                 tau=0.005):
         self.gamma = gamma
 
         self.actor_model = create_actor_model()
@@ -41,9 +42,7 @@ class DDPGAlgorithm:
             critic_loss = tf.math.reduce_mean(tf.math.square(y - critic_value))
 
         critic_grad = tape.gradient(critic_loss, self.critic_model.trainable_variables)
-        self.critic_optimizer.apply_gradients(
-            zip(critic_grad, self.critic_model.trainable_variables)
-        )
+        self.critic_optimizer.apply_gradients(zip(critic_grad, self.critic_model.trainable_variables))
 
     def _update_actor_weights(self, transition_batch: tuple) -> None:
         """
@@ -61,9 +60,7 @@ class DDPGAlgorithm:
             actor_loss = -tf.math.reduce_mean(critic_value)
 
         actor_grad = tape.gradient(actor_loss, self.actor_model.trainable_variables)
-        self.actor_optimizer.apply_gradients(
-            zip(actor_grad, self.actor_model.trainable_variables)
-        )
+        self.actor_optimizer.apply_gradients(zip(actor_grad, self.actor_model.trainable_variables))
 
     def update_actor_critic_weights(self, transition_batch: tuple) -> None:
         """
@@ -83,5 +80,3 @@ class DDPGAlgorithm:
         """
         update_target(self.target_actor.variables, self.actor_model.variables, self.tau)
         update_target(self.target_critic.variables, self.critic_model.variables, self.tau)
-
-

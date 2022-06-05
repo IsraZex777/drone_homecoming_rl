@@ -1,3 +1,5 @@
+import math
+
 import pandas as pd
 import numpy as np
 import tensorflow as tf
@@ -51,9 +53,16 @@ class ReturnHomeActor:
         else:
             distance = max_distance
 
-        state = tf.convert_to_tensor(np.array([(self.curr_x_position - self.init_x_position) / 100,
-                                               (self.curr_y_position - self.init_y_position) / 100,
-                                               (self.curr_z_position - self.init_z_position) / 100,
+        # state = tf.convert_to_tensor(np.array([(self.curr_x_position - self.init_x_position) / 50,
+        #                                        (self.curr_y_position - self.init_y_position) / 50,
+        #                                        (self.curr_z_position - self.init_z_position) / 50,
+        #                                        yaw_diff / 180,
+        #                                        distance / max_distance]))
+
+        distance_scalar = math.sqrt((self.curr_x_position - self.init_x_position) ** 2 +
+                                    (self.curr_y_position - self.init_y_position) ** 2 +
+                                    (self.curr_z_position - self.init_z_position) ** 2)
+        state = tf.convert_to_tensor(np.array([distance_scalar / 50,
                                                yaw_diff / 180,
                                                distance / max_distance]))
 

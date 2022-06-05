@@ -12,6 +12,7 @@ from rl_global.constants import (
     simulator_time_factor
 )
 
+from drone_interface import DroneActions
 
 class AirSimDroneEnvironment(gym.Env):
     """A stock trading environment for OpenAI gym"""
@@ -47,6 +48,10 @@ class AirSimDroneEnvironment(gym.Env):
         self.observer.start_flight_recording()
 
         self.controller = AgentDroneController(drone_name=drone_name)
+
+        self.prev_action = None
+        self.same_action_factor = 1
+        self.same_action_scaler = .90
 
     def reset(self):
         self.controller.reset(self.last_position_x,
@@ -99,8 +104,8 @@ class AirSimDroneEnvironment(gym.Env):
                                       np.array((curr_position_x, curr_position_y, curr_position_z)),
                                       np.array((self.init_position_x, self.init_position_y, self.init_position_z)))
 
-        yaw_reward_factor = ((1 - abs(yaw_diff / 180)) * .5) + .5
-        reward *= yaw_reward_factor ** 2
+        yaw_reward_factor = ((1 - abs(yaw_diff / 180)) * .1) + .9
+        reward *= yaw_reward_factor
 
         # cannot collied
         if curr_position_z > -1:
@@ -109,11 +114,22 @@ class AirSimDroneEnvironment(gym.Env):
         # cannot collied
         # print(distance.any() < 1)
         # print(distance)
-        if has_collied.any() or np.less(distance, [.7]).any():
+        if has_collied.any() or np.less(distance, .7).any():
             return obs_state, reward, True, {"reason": "Has collied"}
 
         # Cannot go more far than 1.5 of the initial distance
         if distance_ratio > self.max_distance_ratio:
             return obs_state, reward, True, {"reason": f"gone too far {distance_ratio}"}
+
+        if self.prev_action == action_type:
+            self.same_action_factor *= self.same_action_scaler
+        else:
+            self.same_action_factor = 1
+
+        if action_type.name in [DroneActions.TURN_LEFT.name, DroneActions.TURN_RIGHT.name]:
+            reward *= self.same_action_factor
+            print(self.same_action_factor)
+
+        self.prev_action = action_type
 
         return obs_state, reward, False, {}

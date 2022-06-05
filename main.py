@@ -26,8 +26,8 @@ def force_dl_run_on_cpu():
 def main_train_offline():
     logger = create_general_logger("ddpg_rl_train_offline")
     force_dl_run_on_cpu()
-    replay_memory_name = "2022_06_03_memory_5"
-    training_name = "2022_05_04_1458"
+    replay_memory_name = "2022_06_03_memory_7"
+    training_name = "2022_05_04_2204"
     train_ddpg_offline(replay_memory_file_name=replay_memory_name,
                        training_name=training_name,
                        logger=logger)
@@ -40,8 +40,8 @@ def main_train_online():
     forward_path_csv_name = "forward_path-simple_forward_record.csv"
     forward_path_csv_path = os.path.join(RECORDS_FOLDER, forward_path_csv_name)
 
-    replay_memory_name = "2022_06_03_memory_7"
-    training_name = "2022_05_04_1458"
+    replay_memory_name = "2022_06_04_memory_2339"
+    training_name = "2022_05_05_0046"
     start_ddpg_training(drone_name="drone1",
                         load_replay_memory=False,
                         update_replay_memory=True,

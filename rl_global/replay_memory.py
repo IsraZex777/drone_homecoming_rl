@@ -51,7 +51,7 @@ class ReplayMemory(object):
         return state_tensor, action_type_tensor, action_duration_tensor, reward_tensor, next_state_tensor
 
     def sample(self, batch_size):
-        random_sample = random.sample(self.memory, batch_size)
+        random_sample = random.sample(self.memory, min(len(self.memory), batch_size))
         return self._sample_to_train_data(random_sample)
 
     def get_batches(self, batch_size: int, shuffle: bool = True):
@@ -68,4 +68,3 @@ class ReplayMemory(object):
 
     def __len__(self):
         return len(self.memory)
-
