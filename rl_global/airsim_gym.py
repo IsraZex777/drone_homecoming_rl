@@ -8,7 +8,8 @@ from flight_recording.actor_observer import ActorObserver
 from drone_interface.agent_drone_controller import AgentDroneController
 from rl_global.utils import calculate_yaw_diff
 from rl_global.constants import (
-    simulator_time_factor
+    simulator_time_factor,
+    max_position_distance
 )
 
 from drone_interface import DroneActions
@@ -21,7 +22,6 @@ class AirSimDroneEnvironment(gym.Env):
     def __init__(self,
                  drone_name,
                  forward_path_csv_path: str,
-                 max_distance_ratio: float = 1.5,
                  allow_same_action: bool = True,
                  logger: logging.Logger = logging.getLogger("dummy")):
         super(AirSimDroneEnvironment, self).__init__()
@@ -43,7 +43,6 @@ class AirSimDroneEnvironment(gym.Env):
         self.initial_distance = None
 
         self.drone_name = drone_name
-        self.max_distance_ratio = max_distance_ratio
 
         # initializes data collector
         self.observer = ActorObserver(drone_name=drone_name)
@@ -75,11 +74,11 @@ class AirSimDroneEnvironment(gym.Env):
             self.last_position_y = self.forward_path_data.iloc[-1]["position_y"]
             self.last_position_z = self.forward_path_data.iloc[-1]["position_z"]
 
-            self.initial_distance = math.sqrt(
-                (self.last_position_x - self.init_position_x) ** 2 +
-                (self.last_position_y - self.init_position_y) ** 2 +
-                (self.last_position_z - self.init_position_z) ** 2
-            )
+            # self.initial_distance = math.sqrt(
+            #     (self.last_position_x - self.init_position_x) ** 2 +
+            #     (self.last_position_y - self.init_position_y) ** 2 +
+            #     (self.last_position_z - self.init_position_z) ** 2
+            # )
 
             self.last_quat_x = self.forward_path_data.iloc[-1]["orientation_x"]
             self.last_quat_y = self.forward_path_data.iloc[-1]["orientation_y"]
@@ -120,12 +119,13 @@ class AirSimDroneEnvironment(gym.Env):
         pos_distance = math.sqrt(
             (curr_position_x - self.init_position_x) ** 2 +
             (curr_position_y - self.init_position_y) ** 2 +
-            (curr_position_z - self.init_position_z) ** 2
+            abs(curr_position_z - self.init_position_z)
         )
 
-        distance_ratio = pos_distance / self.initial_distance
+        pos_distance_normalized = pos_distance / max_position_distance
+        # distance_ratio = pos_distance / self.initial_distance
 
-        reward = self.initial_distance / pos_distance
+        reward = 1 - pos_distance_normalized
 
         # Too close to border isn't good - to avoid collision
         # lowers reward if is too close to object
@@ -153,9 +153,9 @@ class AirSimDroneEnvironment(gym.Env):
         if has_collied.any() or np.less(distance, .7).any():
             return obs_state, reward, True, {"reason": "Has collied"}
 
-        # Cannot go more far than 1.5 of the initial distance
-        if distance_ratio > self.max_distance_ratio:
-            return obs_state, reward, True, {"reason": f"gone too far {distance_ratio}"}
+        # Can't get more far then max_position_distance
+        if pos_distance > max_position_distance:
+            return obs_state, reward, True, {"reason": f"gone too far {pos_distance}"}
 
         if self.prev_action == action_type:
             self.same_action_factor *= self.same_action_scaler
