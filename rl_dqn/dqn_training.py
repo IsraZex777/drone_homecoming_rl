@@ -5,25 +5,17 @@ import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
 
-from .ddpg_algorithm import DDPGAlgorithm
-from .ou_action_noice import OUActionNoise
-from .actor_model import (
-    make_actor_action,
-    action_duration_to_real,
-    action_type_to_real
-)
-from rl_global.return_home_actor import ReturnHomeActor
+from .dqn_algorithm import DQNAlgorithm
+from .actor import make_actor_action
+from rl_global import ReturnHomeActor
 
 from rl_global.airsim_gym import AirSimDroneEnvironment
 from rl_global.constants import (
     total_episodes,
     total_epochs,
-    batch_size,
-    epsilon_min,
-    epsilon_interval,
-    epsilon_greedy_frames
+    batch_size
 )
-from rl_global.replay_memory import ReplayMemory
+from .dqn_replay_memory import DQNReplayMemory
 from artificial_gps.settings import MODELS_FOLDER_PATH
 
 from rl_global.utils import (
@@ -34,43 +26,46 @@ from rl_global.utils import (
     load_model
 )
 
+from rl_global.constants import (
+    epsilon_interval,
+    epsilon_greedy_frames,
+    epsilon_min,
+    max_episode_steps
+)
 
-def start_ddpg_training(drone_name: str,
-                        forward_path_csv_path: str,
-                        replay_memory_file_name: str = None,
-                        load_replay_memory: bool = False,
-                        update_replay_memory: bool = False,
-                        load_last_model: bool = False,
-                        training_name: str = "online_train",
-                        logger: logging.Logger = logging.getLogger("dummy")) -> None:
-    ou_noise = OUActionNoise(mean=np.array([2]), std_deviation=float(.4) * np.ones(1))
+from drone_interface import DroneActions
 
+
+def start_dqn_training(drone_name: str,
+                       forward_path_csv_path: str,
+                       replay_memory_file_name: str = None,
+                       load_replay_memory: bool = False,
+                       update_replay_memory: bool = False,
+                       load_last_model: bool = False,
+                       training_name: str = "online_train",
+                       logger: logging.Logger = logging.getLogger("dummy")) -> None:
     if load_replay_memory and is_replay_memory_file_exist(replay_memory_file_name):
         replay_memory = load_replay_memory_from_file(replay_memory_file_name)
     else:
-        replay_memory = ReplayMemory()
+        replay_memory = DQNReplayMemory()
 
     env = AirSimDroneEnvironment(drone_name=drone_name,
                                  forward_path_csv_path=forward_path_csv_path,
                                  logger=logger)
-    ddpg_algo = DDPGAlgorithm()
+    dqn_algo = DQNAlgorithm()
 
     if load_last_model:
-        actor_model_folder = os.path.join(MODELS_FOLDER_PATH, f"rl_{training_name}_actor")
-        critic_model_folder = os.path.join(MODELS_FOLDER_PATH, f"rl_{training_name}_critic")
+        q_model_path = os.path.join(MODELS_FOLDER_PATH, f"rl_{training_name}_q")
 
-        ddpg_algo.actor_model = load_model(actor_model_folder)
-        ddpg_algo.critic_model = load_model(critic_model_folder)
-
-        ddpg_algo.target_actor.set_weights(ddpg_algo.actor_model.get_weights())
-        ddpg_algo.target_critic.set_weights(ddpg_algo.critic_model.get_weights())
+        dqn_algo.q_model = load_model(q_model_path)
+        dqn_algo.target_q_model.set_weights(dqn_algo.q_model.get_weights())
 
     return_home_agent = ReturnHomeActor(forward_path_csv_path)
 
     ep_reward_list = []
     avg_reward_list = []
-    epsilon = 1
 
+    epsilon = 1
     for ep in range(total_episodes):
         return_home_agent.reset_forwarding_info()
         prev_observation = env.reset()
@@ -79,16 +74,14 @@ def start_ddpg_training(drone_name: str,
         episodic_reward = 0
         is_done = False
 
-        while not is_done:
+        step = 0
+        while not is_done and step < max_episode_steps:
             tf_prev_state = tf.expand_dims(tf.convert_to_tensor(prev_state), 0)
 
-            action_type_vector, action_duration = make_actor_action(ddpg_algo.actor_model,
-                                                                    tf_prev_state,
-                                                                    ou_noise,
-                                                                    logger=logger)
-            real_action_type = action_type_to_real(action_type_vector)
-            real_action_duration = action_duration_to_real(action_duration)
-            action = real_action_type, real_action_duration
+            epsilon -= epsilon_interval / epsilon_greedy_frames
+            epsilon = max(epsilon, epsilon_min)
+
+            action = make_actor_action(dqn_algo.q_model, tf_prev_state, epsilon=epsilon, logger=logger)
 
             observation, reward, is_done, info = env.step(action)
 
@@ -96,27 +89,35 @@ def start_ddpg_training(drone_name: str,
 
             samples_amount = len(replay_memory.memory)
             log = (f"Train episode: {ep} ({samples_amount} samples), "
-                   f"a_type: {real_action_type.name}, "
-                   f"a_duration: {real_action_duration: .2f}({action_duration[0]: .4f}), "
-                   f"epsilon: {epsilon: .2f}, "
+                   f"epsilon: {epsilon}, "
+                   f"a_type: {action[0].name}, "
+                   f"a_duration: {action[1] :.1f}), "
                    f"reward: {reward: .3f}, "
                    f"is_done: {is_done} \n "
-                   f"a_type: {[f'{value:.5f}' for value in action_type_vector.numpy()[0]]} \n "
+                   f"q_values: {[f'{value:.4f}' for value in dqn_algo.q_model(tf_prev_state).numpy()[0]]}"
+                   f"({DroneActions(tf.argmax(dqn_algo.q_model(tf_prev_state), axis=1))})\n "
                    f"prev_state: {[f'{value:.4f}' for value in prev_state.numpy()]}\n "
                    f"state     : {[f'{value:.4f}' for value in state.numpy()]} ")
             logger.info(log)
             print(log)
 
-            replay_memory.push(prev_state, action_type_vector, action_duration, reward, state)
+            replay_memory.push(prev_state, action[0].value, reward, state, is_done)
 
             episodic_reward += reward
+            if is_done:
+                logger.info(f"Epoch learn terminated because the following reason: {info['reason']}")
+            else:
+                if len(replay_memory) > batch_size * 2:
+                    logger.debug(f"Updates actor and critic policies based on DQN Algorithm "
+                                 f"(data amount: {len(replay_memory)})")
+                    prev_states, action_types, rewards, next_states, is_done_tensor = replay_memory.sample(batch_size)
+                    dqn_algo.update_q_wights((prev_states, action_types, rewards, next_states, is_done_tensor))
+                prev_state = state
 
-            prev_states, action_types, action_durations, rewards, next_states = replay_memory.sample(batch_size)
-            ddpg_algo.update_actor_critic_weights((prev_states, action_types, action_durations, rewards, next_states))
-            ddpg_algo.update_target()
+            if len(replay_memory) % 50 == 0:
+                dqn_algo.update_target()
 
-            prev_state = state
-
+            step += 1
         ep_reward_list.append(episodic_reward)
 
         if update_replay_memory:
@@ -128,11 +129,8 @@ def start_ddpg_training(drone_name: str,
         avg_reward_list.append(avg_reward)
 
         # saves models
-        actor_model_folder = os.path.join(MODELS_FOLDER_PATH, f"rl_{training_name}_actor")
-        critic_model_folder = os.path.join(MODELS_FOLDER_PATH, f"rl_{training_name}_critic")
-
-        save_model(ddpg_algo.actor_model, actor_model_folder)
-        save_model(ddpg_algo.critic_model, critic_model_folder)
+        q_model_path = os.path.join(MODELS_FOLDER_PATH, f"rl_{training_name}_q")
+        save_model(dqn_algo.q_model, q_model_path)
 
     # Plotting graph
     # Episodes versus Avg. Rewards
@@ -161,12 +159,8 @@ def train_ddpg_offline(replay_memory_file_name: str,
         print(f"epoch: {ep} out of {total_epochs}")
         for batch_data in replay_memory.get_batches(batch_size, shuffle=True):
             prev_states, action_types, action_durations, rewards, next_states = batch_data
-            # print(action_types)
-            # print(action_durations)
-            # input("")
             ddpg_algo.update_actor_critic_weights((prev_states, action_types,
                                                    action_durations, rewards, next_states))
-            ddpg_algo.update_target()
 
     # saves models
     actor_model_folder = os.path.join(MODELS_FOLDER_PATH, f"rl_{training_name}_actor")

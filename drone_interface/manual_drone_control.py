@@ -66,6 +66,6 @@ class DroneKeyboardInterface:
             self._current_action = None
 
 
-if __name__ == "__main__":
+def start_manual_drone_control():
     controller = DroneKeyboardInterface()
     controller.fly_by_keyboard()

@@ -8,8 +8,6 @@ from scipy.spatial.transform import Rotation as ScipyRotation
 from .constants import (
     RL_REPLAY_MEMORY_FOLDER_PATH
 )
-from rl_global.replay_memory import ReplayMemory
-from rl_dqn.dqn_replay_memory import DQNReplayMemory
 
 
 def calculate_yaw_diff(curr_orientation: np.array,
@@ -43,7 +41,7 @@ def calculate_yaw_diff(curr_orientation: np.array,
     return yaw_diff
 
 
-def save_replay_memory_to_file(file_name: str, memory: ReplayMemory) -> None:
+def save_replay_memory_to_file(file_name: str, memory) -> None:
     """
     Saves replay memory to file input file_name
 
@@ -58,11 +56,11 @@ def save_replay_memory_to_file(file_name: str, memory: ReplayMemory) -> None:
         file.write(bytes(dump))
 
 
-def load_replay_memory_from_file(file_name: str) -> object:
+def load_replay_memory_from_file(file_name: str):
     """
     Loads replay memory from file
     @param file_name: source file name
-    @return:
+    @return: The replay memory
     """
     file_path = os.path.join(RL_REPLAY_MEMORY_FOLDER_PATH, f"{file_name}.bin")
 

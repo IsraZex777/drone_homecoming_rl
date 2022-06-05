@@ -3,7 +3,8 @@ import numpy as np
 
 from scipy.spatial.transform import Rotation as ScipyRotation
 
-from .drone_actions import DroneActions
+from drone_interface import DroneActions
+
 
 class DroneController:
     """

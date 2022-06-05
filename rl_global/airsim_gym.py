@@ -14,6 +14,7 @@ from rl_global.constants import (
 
 from drone_interface import DroneActions
 
+
 class AirSimDroneEnvironment(gym.Env):
     """A stock trading environment for OpenAI gym"""
     metadata = {'render.modes': ['human']}
@@ -22,6 +23,7 @@ class AirSimDroneEnvironment(gym.Env):
                  drone_name,
                  forward_path_csv_path: str,
                  max_distance_ratio: float = 1.5,
+                 allow_same_action: bool = True,
                  logger: logging.Logger = logging.getLogger("dummy")):
         super(AirSimDroneEnvironment, self).__init__()
         self.logger = logger
@@ -49,6 +51,7 @@ class AirSimDroneEnvironment(gym.Env):
 
         self.controller = AgentDroneController(drone_name=drone_name)
 
+        self.allow_same_action = allow_same_action
         self.prev_action = None
         self.same_action_factor = 1
         self.same_action_scaler = .90
@@ -104,8 +107,8 @@ class AirSimDroneEnvironment(gym.Env):
                                       np.array((curr_position_x, curr_position_y, curr_position_z)),
                                       np.array((self.init_position_x, self.init_position_y, self.init_position_z)))
 
-        yaw_reward_factor = ((1 - abs(yaw_diff / 180)) * .1) + .9
-        reward *= yaw_reward_factor
+        yaw_reward_factor = ((1 - abs(yaw_diff / 180)) * .6) + .4
+        reward *= yaw_reward_factor ** 2
 
         # cannot collied
         if curr_position_z > -1:
@@ -126,9 +129,9 @@ class AirSimDroneEnvironment(gym.Env):
         else:
             self.same_action_factor = 1
 
-        if action_type.name in [DroneActions.TURN_LEFT.name, DroneActions.TURN_RIGHT.name]:
+        if action_type.name in [DroneActions.TURN_LEFT.name, DroneActions.TURN_RIGHT.name] and \
+                not self.allow_same_action:
             reward *= self.same_action_factor
-            print(self.same_action_factor)
 
         self.prev_action = action_type
 
