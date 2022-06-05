@@ -1,11 +1,14 @@
 import tensorflow as tf
 
 from .q_model import create_q_model
-from rl_global.constants import action_type_amount
+from rl_global.constants import (
+    GAMMA,
+    action_type_amount
+)
 
 
 class DQNAlgorithm:
-    def __init__(self, gamma: float = 0.95,
+    def __init__(self, gamma: float = GAMMA,
                  q_model_lr: float = 0.002):
         self.gamma = gamma
 
@@ -46,6 +49,8 @@ class DQNAlgorithm:
         # Backpropagation
         grads = tape.gradient(loss, self.q_model.trainable_variables)
         self.q_optimizer.apply_gradients(zip(grads, self.q_model.trainable_variables))
+
+        print("updated")
 
     def update_target(self):
         self.target_q_model.set_weights(self.q_model.get_weights())

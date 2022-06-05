@@ -12,16 +12,16 @@ max_distance = 10
 
 std_dev = 0.2
 
-batch_size = 50
+batch_size = 300
 total_episodes = 1000
 total_epochs = 50
 max_episode_steps = 100
 # Discount factor for future rewards
-gamma = 0.99
+GAMMA = 0.1
 # Used to update target networks
 tau = 0.005
 
-epsilon_min = 0.1  # Minimum epsilon greedy parameter
+epsilon_min = 0.05  # Minimum epsilon greedy parameter
 epsilon_max = 1.0  # Maximum epsilon greedy parameter
 epsilon_interval = (
     epsilon_max - epsilon_min
