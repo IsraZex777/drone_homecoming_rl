@@ -1,7 +1,6 @@
 import logging
 import math
 import numpy as np
-
 import gym
 import pandas as pd
 
@@ -28,38 +27,72 @@ class AirSimDroneEnvironment(gym.Env):
         super(AirSimDroneEnvironment, self).__init__()
         self.logger = logger
 
+        # position variables
+        self.forward_path_csv_path = ""
+        self.forward_path_data = None
+        self.init_position_x = None
+        self.init_position_y = None
+        self.init_position_z = None
+        self.last_position_x = None
+        self.last_position_y = None
+        self.last_position_z = None
+        self.last_quat_x = None
+        self.last_quat_y = None
+        self.last_quat_z = None
+        self.last_quat_w = None
+        self.initial_distance = None
+
         self.drone_name = drone_name
         self.max_distance_ratio = max_distance_ratio
-        self.forward_path_data = pd.read_csv(forward_path_csv_path)
 
-        self.init_position_x = self.forward_path_data.iloc[0]["position_x"]
-        self.init_position_y = self.forward_path_data.iloc[0]["position_y"]
-        self.init_position_z = self.forward_path_data.iloc[0]["position_z"]
-
-        self.last_position_x = self.forward_path_data.iloc[-1]["position_x"]
-        self.last_position_y = self.forward_path_data.iloc[-1]["position_y"]
-        self.last_position_z = self.forward_path_data.iloc[-1]["position_z"]
-
-        self.initial_distance = math.sqrt(
-            (self.last_position_x - self.init_position_x) ** 2 +
-            (self.last_position_y - self.init_position_y) ** 2 +
-            (self.last_position_z - self.init_position_z) ** 2
-        )
-
+        # initializes data collector
         self.observer = ActorObserver(drone_name=drone_name)
         self.observer.start_flight_recording()
 
+        # initializes drone controller
         self.controller = AgentDroneController(drone_name=drone_name)
 
+        # same action reward factor
         self.allow_same_action = allow_same_action
         self.prev_action = None
         self.same_action_factor = 1
         self.same_action_scaler = .90
 
-    def reset(self):
+        # resets the drone to its initial location
+        self.reset(forward_path_csv_path)
+
+    def reset(self, forward_path_csv_path: str = ""):
+
+        if forward_path_csv_path != self.forward_path_csv_path:
+            self.forward_path_data = pd.read_csv(forward_path_csv_path)
+            self.forward_path_csv_path = forward_path_csv_path
+
+            self.init_position_x = self.forward_path_data.iloc[0]["position_x"]
+            self.init_position_y = self.forward_path_data.iloc[0]["position_y"]
+            self.init_position_z = self.forward_path_data.iloc[0]["position_z"]
+
+            self.last_position_x = self.forward_path_data.iloc[-1]["position_x"]
+            self.last_position_y = self.forward_path_data.iloc[-1]["position_y"]
+            self.last_position_z = self.forward_path_data.iloc[-1]["position_z"]
+
+            self.initial_distance = math.sqrt(
+                (self.last_position_x - self.init_position_x) ** 2 +
+                (self.last_position_y - self.init_position_y) ** 2 +
+                (self.last_position_z - self.init_position_z) ** 2
+            )
+
+            self.last_quat_x = self.forward_path_data.iloc[-1]["orientation_x"]
+            self.last_quat_y = self.forward_path_data.iloc[-1]["orientation_y"]
+            self.last_quat_z = self.forward_path_data.iloc[-1]["orientation_z"]
+            self.last_quat_w = self.forward_path_data.iloc[-1]["orientation_w"]
+
         self.controller.reset(self.last_position_x,
                               self.last_position_y,
-                              self.last_position_z, )
+                              self.last_position_z,
+                              self.last_quat_x,
+                              self.last_quat_y,
+                              self.last_quat_z,
+                              self.last_quat_w)
         self.observer.reset_recording_data()
 
         return self.forward_path_data

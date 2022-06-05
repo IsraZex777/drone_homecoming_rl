@@ -32,5 +32,5 @@ epsilon_greedy_frames = 1000.0
 RL_REPLAY_MEMORY_FOLDER_NAME = "rl_replay_memory"
 RL_REPLAY_MEMORY_FOLDER_PATH = os.path.join(os.path.dirname(__file__), RL_REPLAY_MEMORY_FOLDER_NAME)
 
-RECORDS_FOLDER = os.path.join(os.path.dirname(__file__), "rl_forward_paths")
+RL_FORWARD_PATHS = os.path.join(os.path.dirname(__file__), "rl_forward_paths")
 

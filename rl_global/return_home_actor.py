@@ -13,7 +13,8 @@ from .utils import calculate_yaw_diff
 
 class ReturnHomeActor:
     def __init__(self, forward_path_csv_path: str):
-        self.forward_sensors = pd.read_csv(forward_path_csv_path)
+        self.forward_path_csv_path = ""
+        self.forward_sensors = None
         self.init_x_position = None
         self.init_y_position = None
         self.init_z_position = None
@@ -23,9 +24,13 @@ class ReturnHomeActor:
         self.curr_y_position = None
         self.curr_z_position = None
 
-        self.reset_forwarding_info()
+        self.reset_forwarding_info(forward_path_csv_path)
 
-    def reset_forwarding_info(self):
+    def reset_forwarding_info(self, forward_path_csv_path=""):
+        if forward_path_csv_path != self.forward_path_csv_path:
+            self.forward_path_csv_path = forward_path_csv_path
+            self.forward_sensors = pd.read_csv(forward_path_csv_path)
+
         self.init_x_position = self.forward_sensors.iloc[0]["position_x"]
         self.init_y_position = self.forward_sensors.iloc[0]["position_y"]
         self.init_z_position = self.forward_sensors.iloc[0]["position_z"]

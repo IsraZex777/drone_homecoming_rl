@@ -1,9 +1,11 @@
 import logging
+import random
 import os.path
-
 import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
+
+from typing import List
 
 from .dqn_algorithm import DQNAlgorithm
 from .actor import make_actor_action
@@ -37,20 +39,23 @@ from drone_interface import DroneActions
 
 
 def start_dqn_training(drone_name: str,
-                       forward_path_csv_path: str,
+                       forward_path_csv_files: List[str],
                        replay_memory_file_name: str = None,
                        load_replay_memory: bool = False,
                        update_replay_memory: bool = False,
                        load_last_model: bool = False,
                        training_name: str = "online_train",
                        logger: logging.Logger = logging.getLogger("dummy")) -> None:
+    forward_paths_amount = len(forward_path_csv_files)
+    forward_path_index = random.randint(0, forward_paths_amount - 1)
+
     if load_replay_memory and is_replay_memory_file_exist(replay_memory_file_name):
         replay_memory = load_replay_memory_from_file(replay_memory_file_name)
     else:
         replay_memory = DQNReplayMemory()
 
     env = AirSimDroneEnvironment(drone_name=drone_name,
-                                 forward_path_csv_path=forward_path_csv_path,
+                                 forward_path_csv_path=forward_path_csv_files[forward_path_index],
                                  logger=logger)
     dqn_algo = DQNAlgorithm()
 
@@ -60,15 +65,16 @@ def start_dqn_training(drone_name: str,
         dqn_algo.q_model = load_model(q_model_path)
         dqn_algo.target_q_model.set_weights(dqn_algo.q_model.get_weights())
 
-    return_home_agent = ReturnHomeActor(forward_path_csv_path)
+    return_home_agent = ReturnHomeActor(forward_path_csv_files[forward_path_index])
 
     ep_reward_list = []
     avg_reward_list = []
 
     epsilon = 1
     for ep in range(total_episodes):
-        return_home_agent.reset_forwarding_info()
-        prev_observation = env.reset()
+        forward_path_index = random.randint(0, forward_paths_amount - 1)
+        return_home_agent.reset_forwarding_info(forward_path_csv_files[forward_path_index])
+        prev_observation = env.reset(forward_path_csv_files[forward_path_index])
         prev_state = return_home_agent.observation_to_normalized_state(prev_observation)
 
         episodic_reward = 0
