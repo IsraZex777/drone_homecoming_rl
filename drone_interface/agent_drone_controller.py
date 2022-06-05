@@ -1,5 +1,5 @@
 import time
-from drone_controller import (
+from drone_interface.drone_controller import (
     DroneActions,
     DroneController
 )
@@ -28,7 +28,16 @@ class AgentDroneController:
     def reset(self,
               position_x: float = 0.0,
               position_y: float = 0.0,
-              position_z: float = 0.0) -> None:
+              position_z: float = 0.0,
+              quat_x: float = 0.0,
+              quat_y: float = 0.0,
+              quat_z: float = 0.0,
+              quat_w: float = 0.0,
+              ) -> None:
         self._controller.reset(position_x=position_x,
                                position_y=position_y,
-                               position_z=position_z)
+                               position_z=position_z,
+                               quat_x=quat_x,
+                               quat_y=quat_y,
+                               quat_z=quat_z,
+                               quat_w=quat_w)

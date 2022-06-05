@@ -1,64 +1,49 @@
 import logging
 import os.path
-import random
 
 import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
 
-from ddpg_algorithm import DDPGAlgorithm
-from ou_action_noice import OUActionNoise
-from actor_model import (
+from .ddpg_algorithm import DDPGAlgorithm
+from .ou_action_noice import OUActionNoise
+from .actor_model import (
     make_actor_action,
     action_duration_to_real,
     action_type_to_real
 )
-from return_home_actor import ReturnHomeActor
+from rl_global.return_home_actor import ReturnHomeActor
 
-from airsim_gym import AirSimDroneEnvironment
-from constants import (
+from rl_global.airsim_gym import AirSimDroneEnvironment
+from rl_global.constants import (
     total_episodes,
     total_epochs,
-    batch_size
+    batch_size,
+    epsilon_min,
+    epsilon_interval,
+    epsilon_greedy_frames
 )
-from drone_controller import DroneActions
-from replay_memory import ReplayMemory
+from rl_global.replay_memory import ReplayMemory
 from artificial_gps.settings import MODELS_FOLDER_PATH
 
-from utils import (
+from rl_global.utils import (
     load_replay_memory_from_file,
     save_replay_memory_to_file,
     is_replay_memory_file_exist,
+    save_model,
+    load_model
 )
 
 
-def save_model(model, model_name):
-    model_json = model.to_json()
-    with open(f"{model_name}.json", "w") as json_file:
-        json_file.write(model_json)
-
-    model.save_weights(f"{model_name}.h5")
-
-
-def load_model(model_name):
-    with open(f'{model_name}.json', 'r') as json_file:
-        loaded_model_json = json_file.read()
-
-    loaded_model = tf.keras.models.model_from_json(loaded_model_json)
-    loaded_model.load_weights(f"{model_name}.h5")
-
-    return loaded_model
-
-
-def start_training(drone_name: str,
-                   forward_path_csv_path: str,
-                   replay_memory_file_name: str = None,
-                   load_replay_memory: bool = False,
-                   update_replay_memory: bool = False,
-                   load_last_model: bool = False,
-                   training_name: str = "online_train",
-                   logger: logging.Logger = logging.getLogger("dummy")) -> None:
-    ou_noise = OUActionNoise(mean=np.array([2]), std_deviation=float(.1) * np.ones(1))
+def start_ddpg_training(drone_name: str,
+                        forward_path_csv_path: str,
+                        replay_memory_file_name: str = None,
+                        load_replay_memory: bool = False,
+                        update_replay_memory: bool = False,
+                        load_last_model: bool = False,
+                        training_name: str = "online_train",
+                        logger: logging.Logger = logging.getLogger("dummy")) -> None:
+    ou_noise = OUActionNoise(mean=np.array([2]), std_deviation=float(.4) * np.ones(1))
 
     if load_replay_memory and is_replay_memory_file_exist(replay_memory_file_name):
         replay_memory = load_replay_memory_from_file(replay_memory_file_name)
@@ -84,6 +69,7 @@ def start_training(drone_name: str,
 
     ep_reward_list = []
     avg_reward_list = []
+    epsilon = 1
 
     for ep in range(total_episodes):
         return_home_agent.reset_forwarding_info()
@@ -100,7 +86,6 @@ def start_training(drone_name: str,
                                                                     tf_prev_state,
                                                                     ou_noise,
                                                                     logger=logger)
-
             real_action_type = action_type_to_real(action_type_vector)
             real_action_duration = action_duration_to_real(action_duration)
             action = real_action_type, real_action_duration
@@ -113,8 +98,10 @@ def start_training(drone_name: str,
             log = (f"Train episode: {ep} ({samples_amount} samples), "
                    f"a_type: {real_action_type.name}, "
                    f"a_duration: {real_action_duration: .2f}({action_duration[0]: .4f}), "
+                   f"epsilon: {epsilon: .2f}, "
                    f"reward: {reward: .3f}, "
                    f"is_done: {is_done} \n "
+                   f"a_type: {[f'{value:.5f}' for value in action_type_vector.numpy()[0]]} \n "
                    f"prev_state: {[f'{value:.4f}' for value in prev_state.numpy()]}\n "
                    f"state     : {[f'{value:.4f}' for value in state.numpy()]} ")
             logger.info(log)
@@ -123,17 +110,12 @@ def start_training(drone_name: str,
             replay_memory.push(prev_state, action_type_vector, action_duration, reward, state)
 
             episodic_reward += reward
-            if is_done:
-                logger.info(f"Epoch learn terminated because the following reason: {info['reason']}")
-            else:
-                if len(replay_memory) > batch_size * 2:
-                    logger.debug(f"Updates actor and critic policies based on DDPG Algorithm "
-                                 f"(data amount: {len(replay_memory)})")
-                    prev_states, action_types, action_durations, rewards, next_states = replay_memory.sample(batch_size)
-                    ddpg_algo.update_actor_critic_weights((prev_states, action_types,
-                                                           action_durations, rewards, next_states))
 
-                prev_state = state
+            prev_states, action_types, action_durations, rewards, next_states = replay_memory.sample(batch_size)
+            ddpg_algo.update_actor_critic_weights((prev_states, action_types, action_durations, rewards, next_states))
+            ddpg_algo.update_target()
+
+            prev_state = state
 
         ep_reward_list.append(episodic_reward)
 
@@ -160,9 +142,9 @@ def start_training(drone_name: str,
     plt.show()
 
 
-def train_offline(replay_memory_file_name: str,
-                  training_name: str,
-                  logger: logging.Logger = logging.getLogger("dummy")) -> None:
+def train_ddpg_offline(replay_memory_file_name: str,
+                       training_name: str,
+                       logger: logging.Logger = logging.getLogger("dummy")) -> None:
     """
     Trains actor and critic models based on previously collected replay memory.
     Without online interactive with the environment
@@ -172,18 +154,19 @@ def train_offline(replay_memory_file_name: str,
     @return:
     """
     replay_memory = load_replay_memory_from_file(replay_memory_file_name)
-    print(replay_memory)
-    print(len(replay_memory))
+
     ddpg_algo = DDPGAlgorithm()
 
     for ep in range(total_epochs):
         print(f"epoch: {ep} out of {total_epochs}")
         for batch_data in replay_memory.get_batches(batch_size, shuffle=True):
             prev_states, action_types, action_durations, rewards, next_states = batch_data
+            # print(action_types)
+            # print(action_durations)
+            # input("")
             ddpg_algo.update_actor_critic_weights((prev_states, action_types,
                                                    action_durations, rewards, next_states))
-
-
+            ddpg_algo.update_target()
 
     # saves models
     actor_model_folder = os.path.join(MODELS_FOLDER_PATH, f"rl_{training_name}_actor")

@@ -1,20 +1,11 @@
-import os
-import datetime
 import threading
 import time
 import numpy as np
-import pandas as pd
 import airsim
 
 from .state_collector import StateCollector
 
-from .settings import (
-    RECORD_COLUMNS,
-    RECORDS_FOLDER,
-    IS_SIM_CLOCK_FASTER
-)
-
-from constants import simulator_time_factor
+from rl_global.constants import simulator_time_factor
 
 
 def record_sensors(state_collector: StateCollector,

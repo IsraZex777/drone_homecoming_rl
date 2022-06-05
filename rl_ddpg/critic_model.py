@@ -3,7 +3,7 @@ from tensorflow.keras import (
     layers,
 )
 
-from constants import (
+from rl_global.constants import (
     action_type_amount,
     state_amount,
 )

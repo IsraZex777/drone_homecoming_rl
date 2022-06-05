@@ -1,22 +1,10 @@
 import airsim
 import numpy as np
 
-from enum import Enum, unique
+from airsim.types import Quaternionr
 from scipy.spatial.transform import Rotation as ScipyRotation
 
-
-@unique
-class DroneActions(Enum):
-    FORWARD = 0
-    TURN_LEFT = 1
-    TURN_RIGHT = 2
-    UP = 3
-    DOWN = 4
-    BACKWARD = 5
-    STOP = 6
-    # SPEED_LEVEL_1 = 6
-    # SPEED_LEVEL_2 = 6
-    # SPEED_LEVEL_3 = 6
+from drone_interface import DroneActions
 
 
 class DroneController:
@@ -89,7 +77,12 @@ class DroneController:
     def reset(self,
               position_x: float = 0.0,
               position_y: float = 0.0,
-              position_z: float = 0.0) -> None:
+              position_z: float = 0.0,
+              quat_x: float = 0.0,
+              quat_y: float = 0.0,
+              quat_z: float = 0.0,
+              quat_w: float = 0.0,
+              ) -> None:
         self._client.reset()
         self._client.enableApiControl(True)
         self._client.armDisarm(True)
@@ -97,6 +90,12 @@ class DroneController:
         position = airsim.Vector3r(position_x,
                                    position_y,
                                    position_z)
-        heading = airsim.utils.to_quaternion(0, 0, 0)
+
+        heading = Quaternionr()
+        heading.x_val = quat_x
+        heading.y_val = quat_y
+        heading.z_val = quat_z
+        heading.w_val = quat_w
+
         pose = airsim.Pose(position, heading)
         self._client.simSetVehiclePose(pose, True)

@@ -1,20 +1,13 @@
 import os
 import math
-import json
 import pickle
-import pandas as pd
 import numpy as np
 import tensorflow as tf
 from scipy.spatial.transform import Rotation as ScipyRotation
 
-from constants import (
-    max_distance
-)
-
-from settings import (
+from .constants import (
     RL_REPLAY_MEMORY_FOLDER_PATH
 )
-from replay_memory import ReplayMemory
 
 
 def calculate_yaw_diff(curr_orientation: np.array,
@@ -48,7 +41,7 @@ def calculate_yaw_diff(curr_orientation: np.array,
     return yaw_diff
 
 
-def save_replay_memory_to_file(file_name: str, memory: ReplayMemory) -> None:
+def save_replay_memory_to_file(file_name: str, memory) -> None:
     """
     Saves replay memory to file input file_name
 
@@ -63,11 +56,11 @@ def save_replay_memory_to_file(file_name: str, memory: ReplayMemory) -> None:
         file.write(bytes(dump))
 
 
-def load_replay_memory_from_file(file_name: str) -> ReplayMemory:
+def load_replay_memory_from_file(file_name: str):
     """
     Loads replay memory from file
     @param file_name: source file name
-    @return:
+    @return: The replay memory
     """
     file_path = os.path.join(RL_REPLAY_MEMORY_FOLDER_PATH, f"{file_name}.bin")
 
@@ -88,3 +81,27 @@ def is_replay_memory_file_exist(file_name: str) -> bool:
     return os.path.isfile(file_path)
 
 
+def save_model(model, model_name):
+    model_json = model.to_json()
+    with open(f"{model_name}.json", "w") as json_file:
+        json_file.write(model_json)
+
+    model.save_weights(f"{model_name}.h5")
+
+
+def load_model(model_name):
+    with open(f'{model_name}.json', 'r') as json_file:
+        loaded_model_json = json_file.read()
+
+    loaded_model = tf.keras.models.model_from_json(loaded_model_json)
+    loaded_model.load_weights(f"{model_name}.h5")
+
+    return loaded_model
+
+
+# This update target parameters slowly
+# Based on rate `tau`, which is much less than one.
+@tf.function
+def update_target(target_weights, weights, tau):
+    for (a, b) in zip(target_weights, weights):
+        a.assign(b * tau + a * (1 - tau))
