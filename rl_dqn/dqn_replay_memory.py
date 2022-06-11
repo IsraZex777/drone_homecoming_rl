@@ -19,7 +19,7 @@ Transition = namedtuple('Transition',
 
 class DQNReplayMemory(object):
 
-    def __init__(self, capacity=10000):
+    def __init__(self, capacity=1000000):
         self.memory = deque([], maxlen=capacity)
 
     def push(self, *args):

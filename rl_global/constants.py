@@ -13,14 +13,14 @@ max_distance = 10
 
 std_dev = 0.2
 
-batch_size = 300
-total_episodes = 1000
-total_epochs = 50
-max_episode_steps = 100
+batch_size = 500
+total_episodes = 10000
+total_epochs = 10
+max_episode_steps = 1000
 
 
 # Discount factor for future rewards
-GAMMA = 0.1
+GAMMA = 0
 # Used to update target networks
 tau = 0.005
 
@@ -30,7 +30,7 @@ epsilon_interval = (
     epsilon_max - epsilon_min
 )
 # Number of frames for exploration
-epsilon_greedy_frames = 10000.0
+epsilon_greedy_frames = 1000000.0
 
 RL_REPLAY_MEMORY_FOLDER_NAME = "rl_replay_memory"
 RL_REPLAY_MEMORY_FOLDER_PATH = os.path.join(os.path.dirname(__file__), RL_REPLAY_MEMORY_FOLDER_NAME)
