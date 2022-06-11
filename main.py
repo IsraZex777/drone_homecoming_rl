@@ -62,6 +62,7 @@ def main_train_online():
     replay_memory_name = "2022_06_07_memory_0034_record"
     # training_name = "2022_06_05_1617"
     training_name = "2022_06_11_1336"
+    pos_prediction_model_name = "ann_pos_11Jun_1510"
     start_dqn_training(drone_name="drone1",
                        load_replay_memory=True,
                        forward_path_csv_files=files,
@@ -70,6 +71,7 @@ def main_train_online():
                        load_last_model=True,
                        training_name=training_name,
                        is_training=False,
+                       pos_prediction_model_name=pos_prediction_model_name,
                        logger=logger)
 
 
@@ -90,10 +92,10 @@ def main_predict_position():
 
 if __name__ == "__main__":
     os.environ["CUDA_VISIBLE_DEVICES"] = ""
-    main_predict_position()
+    # main_predict_position()
     # main_train_position_prediction_model()
     # record_data()
     # main_train_offline()
-    # main_train_online()
+    main_train_online()
     # record_data()
     # bots_main()

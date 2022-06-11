@@ -7,7 +7,7 @@ action_duration_lower_limit = .1
 action_duration_upper_limit = 1
 max_position_distance = 100
 
-simulator_time_factor = 2
+simulator_time_factor = 1
 
 max_distance = 10
 

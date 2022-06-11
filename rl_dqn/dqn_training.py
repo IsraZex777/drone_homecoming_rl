@@ -46,6 +46,7 @@ def start_dqn_training(drone_name: str,
                        load_last_model: bool = False,
                        training_name: str = "online_train",
                        is_training=True,
+                       pos_prediction_model_name="",
                        logger: logging.Logger = logging.getLogger("dummy")) -> None:
     forward_paths_amount = len(forward_path_csv_files)
     forward_path_index = random.randint(0, forward_paths_amount - 1)
@@ -66,7 +67,9 @@ def start_dqn_training(drone_name: str,
         dqn_algo.q_model = load_model(q_model_path)
         dqn_algo.target_q_model.set_weights(dqn_algo.q_model.get_weights())
 
-    return_home_agent = ReturnHomeActor(forward_path_csv_files[forward_path_index])
+    return_home_agent = ReturnHomeActor(forward_path_csv_files[forward_path_index],
+                                        pos_prediction_model_name=pos_prediction_model_name,
+                                        logger=logger)
 
     avg_reward_list = []
 
