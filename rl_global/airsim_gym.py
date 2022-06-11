@@ -100,7 +100,7 @@ class AirSimDroneEnvironment(gym.Env):
         action_type, action_duration = action
 
         # takes action
-        stop_duration = min(6, max(3, 1.5 * action_duration))
+        stop_duration = min(6.0, max(2.5, 1.5 * action_duration))
         self.controller.handle_action(action_type, action_duration / simulator_time_factor,
                                       stop_duration=stop_duration / simulator_time_factor)
         # self.controller.handle_action(action_type, action_duration, stop_duration=0)

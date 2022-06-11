@@ -1,6 +1,7 @@
 import logging
 import math
 import os.path
+import datetime
 
 import pandas as pd
 import numpy as np
@@ -15,6 +16,7 @@ from position_prediction import (
 )
 from position_prediction.settings import (
     MODELS_FOLDER_PATH,
+    DATA_FOLDER_PATH
 )
 from position_prediction.utils import (
     load_model_with_scalers_binary
@@ -67,14 +69,27 @@ class ReturnHomeActor:
         self.curr_y_position = self.forward_sensors.iloc[-1]["position_y"]
         self.curr_z_position = self.forward_sensors.iloc[-1]["position_z"]
 
-    def observation_to_normalized_state(self, obs_data: pd.DataFrame):
+        self.real_x_position = self.forward_sensors.iloc[-1]["position_x"]
+        self.real_y_position = self.forward_sensors.iloc[-1]["position_y"]
+        self.real_z_position = self.forward_sensors.iloc[-1]["position_z"]
+
+    def observation_to_normalized_state(self, obs_data: pd.DataFrame, save_observation_data=False):
         # if using the prediction model
+
+        if save_observation_data:
+            obs_data.to_csv(os.path.join(DATA_FOLDER_PATH,
+                                         f"observation_{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.csv"))
+
         if self.pos_prediction_model_name:
             x_offset, y_offset, z_offset = self.position_predictor.predict_position_offset(obs_data)
 
-            pred_vs_real = f"pos_x_offset: {x_offset} - {obs_data.iloc[-1]['position_x'] - self.curr_x_position}\n" \
-                           f"pos_y_offset: {y_offset} - {obs_data.iloc[-1]['position_y'] - self.curr_y_position}\n" \
-                           f"pos_z_offset: {z_offset} - {obs_data.iloc[-1]['position_z'] - self.curr_z_position}\n"
+            pred_vs_real = f"pos_x_offset: {x_offset} - {obs_data.iloc[-1]['position_x'] - self.real_x_position}\n" \
+                           f"pos_y_offset: {y_offset} - {obs_data.iloc[-1]['position_y'] - self.real_y_position}\n" \
+                           f"pos_z_offset: {z_offset} - {obs_data.iloc[-1]['position_z'] - self.real_z_position}\n"
+
+            self.curr_x_position += x_offset
+            self.curr_z_position += y_offset
+            self.curr_y_position += z_offset
 
             print(pred_vs_real)
             self.logger.debug(f"pred_model_vs_real\n{pred_vs_real}")
@@ -83,6 +98,10 @@ class ReturnHomeActor:
             self.curr_x_position = obs_data.iloc[-1]["position_x"]
             self.curr_y_position = obs_data.iloc[-1]["position_y"]
             self.curr_z_position = obs_data.iloc[-1]["position_z"]
+
+        self.real_x_position = obs_data.iloc[-1]["position_x"]
+        self.real_y_position = obs_data.iloc[-1]["position_y"]
+        self.real_z_position = obs_data.iloc[-1]["position_z"]
 
         yaw_diff = calculate_yaw_diff(np.array([obs_data.iloc[-1]["orientation_x"],
                                                 obs_data.iloc[-1]["orientation_y"],

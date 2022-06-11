@@ -45,4 +45,4 @@ class PositionPredictor:
 
         pred_xy_pos = np.hstack([pred_xy_pos, pred_xy_pos_step[:, 2].reshape(-1, 1)])
 
-        return pred_xy_pos[-1, 0], pred_xy_pos[-1, 1], pred_xy_pos[-1, 2] - pred_xy_pos[0, 2]
+        return -pred_xy_pos[-1, 0], -pred_xy_pos[-1, 1], pred_xy_pos[-1, 2] - pred_xy_pos[0, 2]

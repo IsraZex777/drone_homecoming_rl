@@ -59,18 +59,19 @@ def main_train_online():
     force_dl_run_on_cpu()
     files = [os.path.join(RL_FORWARD_PATHS, csv) for csv in os.listdir(RL_FORWARD_PATHS)]
 
-    replay_memory_name = "2022_06_07_memory_0034_record"
+    replay_memory_name = "2022_06_11_memory_1843_record"
     # training_name = "2022_06_05_1617"
     training_name = "2022_06_11_1336"
     pos_prediction_model_name = "ann_pos_11Jun_1510"
+    # pos_prediction_model_name = ""
     start_dqn_training(drone_name="drone1",
-                       load_replay_memory=True,
+                       load_replay_memory=False,
                        forward_path_csv_files=files,
-                       update_replay_memory=False,
+                       update_replay_memory=True,
                        replay_memory_file_name=replay_memory_name,
-                       load_last_model=True,
+                       load_last_model=False,
                        training_name=training_name,
-                       is_training=False,
+                       is_training=True,
                        pos_prediction_model_name=pos_prediction_model_name,
                        logger=logger)
 

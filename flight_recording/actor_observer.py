@@ -3,6 +3,7 @@ import time
 import numpy as np
 import airsim
 
+from .settings import IS_SIM_CLOCK_FASTER
 from .state_collector import StateCollector
 
 from rl_global.constants import simulator_time_factor
@@ -54,7 +55,7 @@ def record_sensors(state_collector: StateCollector,
             multi_rotor_state.timestamp,
         )
 
-        if not simulator_time_factor == 1:
+        if not IS_SIM_CLOCK_FASTER:
             time.sleep(0.015)
 
 
