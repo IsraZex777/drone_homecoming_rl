@@ -12,6 +12,7 @@ position_prediction/models/*
 position_prediction/tuners/*
 
 rl_dqn/models/*
+rl_dqn/tuners/*
 rl_global/rl_replay_memory/*
 rl_global/rl_forward_paths/*
 
