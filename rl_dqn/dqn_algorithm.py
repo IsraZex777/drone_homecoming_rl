@@ -18,7 +18,7 @@ class DQNAlgorithm:
         self.q_optimizer = tf.keras.optimizers.Adam(q_model_lr)
         self.loss_function = tf.keras.losses.Huber()
 
-    def update_q_wights(self, transition_batch: tuple) -> None:
+    def update_q_wights(self, transition_batch: tuple):
         """
         Updates Critic weights
         @param transition_batch:
@@ -50,7 +50,7 @@ class DQNAlgorithm:
         grads = tape.gradient(loss, self.q_model.trainable_variables)
         self.q_optimizer.apply_gradients(zip(grads, self.q_model.trainable_variables))
 
-        print("updated")
+        return loss
 
     def update_target(self):
         self.target_q_model.set_weights(self.q_model.get_weights())

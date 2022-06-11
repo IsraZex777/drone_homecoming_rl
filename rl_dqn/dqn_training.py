@@ -45,6 +45,7 @@ def start_dqn_training(drone_name: str,
                        update_replay_memory: bool = False,
                        load_last_model: bool = False,
                        training_name: str = "online_train",
+                       is_training=True,
                        logger: logging.Logger = logging.getLogger("dummy")) -> None:
     forward_paths_amount = len(forward_path_csv_files)
     forward_path_index = random.randint(0, forward_paths_amount - 1)
@@ -67,12 +68,16 @@ def start_dqn_training(drone_name: str,
 
     return_home_agent = ReturnHomeActor(forward_path_csv_files[forward_path_index])
 
-    ep_reward_list = []
     avg_reward_list = []
 
-    epsilon = 1
+    if is_training:
+        epsilon = 1
+    else:
+        epsilon = 0
+
     for ep in range(total_episodes):
         forward_path_index = random.randint(0, forward_paths_amount - 1)
+        logger.info(f"Loads following forward path: {forward_path_csv_files[forward_path_index]}")
         return_home_agent.reset_forwarding_info(forward_path_csv_files[forward_path_index])
         prev_observation = env.reset(forward_path_csv_files[forward_path_index])
         prev_state = return_home_agent.observation_to_normalized_state(prev_observation)
@@ -84,8 +89,9 @@ def start_dqn_training(drone_name: str,
         while not is_done and step < max_episode_steps:
             tf_prev_state = tf.expand_dims(tf.convert_to_tensor(prev_state), 0)
 
-            epsilon -= epsilon_interval / epsilon_greedy_frames
-            epsilon = max(epsilon, epsilon_min)
+            if is_training:
+                epsilon -= epsilon_interval / epsilon_greedy_frames
+                epsilon = max(epsilon, epsilon_min)
 
             action = make_actor_action(dqn_algo.q_model, tf_prev_state, epsilon=epsilon, logger=logger)
 
@@ -113,7 +119,7 @@ def start_dqn_training(drone_name: str,
             if is_done:
                 logger.info(f"Epoch learn terminated because the following reason: {info['reason']}")
             else:
-                if len(replay_memory) > batch_size * 2:
+                if len(replay_memory) > batch_size * 4:
                     logger.debug(f"Updates actor and critic policies based on DQN Algorithm "
                                  f"(data amount: {len(replay_memory)})")
                     prev_states, action_types, rewards, next_states, is_done_tensor = replay_memory.sample(batch_size)
@@ -124,15 +130,14 @@ def start_dqn_training(drone_name: str,
                 dqn_algo.update_target()
 
             step += 1
-        ep_reward_list.append(episodic_reward)
+
+        avg_reward_list.append(episodic_reward / step)
 
         if update_replay_memory:
             save_replay_memory_to_file(replay_memory_file_name, replay_memory)
 
-        # Mean of last 40 episodes
-        avg_reward = np.mean(ep_reward_list[-40:])
-        print("Episode * {} * Avg Reward is ==> {}".format(ep, avg_reward))
-        avg_reward_list.append(avg_reward)
+        logger.info(f"Episode {ep} has finished. Avg reward: {episodic_reward / step}")
+        logger.info(f"Total Avg reward list: {avg_reward_list}")
 
         # saves models
         q_model_path = os.path.join(MODELS_FOLDER_PATH, f"rl_{training_name}_q")
@@ -146,9 +151,9 @@ def start_dqn_training(drone_name: str,
     plt.show()
 
 
-def train_ddpg_offline(replay_memory_file_name: str,
-                       training_name: str,
-                       logger: logging.Logger = logging.getLogger("dummy")) -> None:
+def train_dqn_offline(replay_memory_file_name: str,
+                      training_name: str,
+                      logger: logging.Logger = logging.getLogger("dummy")) -> None:
     """
     Trains actor and critic models based on previously collected replay memory.
     Without online interactive with the environment
@@ -159,18 +164,22 @@ def train_ddpg_offline(replay_memory_file_name: str,
     """
     replay_memory = load_replay_memory_from_file(replay_memory_file_name)
 
-    ddpg_algo = DDPGAlgorithm()
+    dqn_algo = DQNAlgorithm()
 
     for ep in range(total_epochs):
         print(f"epoch: {ep} out of {total_epochs}")
-        for batch_data in replay_memory.get_batches(batch_size, shuffle=True):
+        epoch_loss = 0
+        for index, batch_data in enumerate(replay_memory.get_batches(batch_size, shuffle=True)):
             prev_states, action_types, action_durations, rewards, next_states = batch_data
-            ddpg_algo.update_actor_critic_weights((prev_states, action_types,
-                                                   action_durations, rewards, next_states))
+            loss = dqn_algo.update_q_wights((prev_states, action_types, action_durations, rewards, next_states))
 
+            epoch_loss += loss
+
+            if index % 10 == 0:
+                dqn_algo.update_target()
+
+        print(f"epoch {ep} ag loss: {epoch_loss / (len(replay_memory) / batch_size)}")
     # saves models
-    actor_model_folder = os.path.join(MODELS_FOLDER_PATH, f"rl_{training_name}_actor")
-    critic_model_folder = os.path.join(MODELS_FOLDER_PATH, f"rl_{training_name}_critic")
+    model_path = os.path.join(MODELS_FOLDER_PATH, f"rl_{training_name}_q")
 
-    save_model(ddpg_algo.actor_model, actor_model_folder)
-    save_model(ddpg_algo.critic_model, critic_model_folder)
+    save_model(dqn_algo.q_model, model_path)
