@@ -1,5 +1,5 @@
-from model import create_ann_model
-from data_preprocessing import load_preprocessed_dataset
+from .model import create_ann_model
+from .data_preprocessing import load_preprocessed_dataset
 
 
 def train_model():

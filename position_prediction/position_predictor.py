@@ -8,11 +8,11 @@ from position_prediction.settings import (
     ORIENTATION_DIFF_COLUMNS
 )
 
-from utils import (
+from .utils import (
     columns_names_to_indexes
 )
 
-from data_preprocessing import recording_to_x_data
+from .data_preprocessing import recording_to_x_data
 
 
 class PositionPredictor:

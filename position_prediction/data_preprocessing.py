@@ -17,7 +17,7 @@ from position_prediction.settings import (
     OUTPUT_COLUMNS
 )
 
-from utils import (
+from .utils import (
     split_data,
     columns_names_to_indexes
 )

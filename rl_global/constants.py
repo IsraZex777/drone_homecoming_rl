@@ -7,7 +7,7 @@ action_duration_lower_limit = .1
 action_duration_upper_limit = 1
 max_position_distance = 100
 
-simulator_time_factor = 1
+simulator_time_factor = 2
 
 max_distance = 10
 
@@ -16,7 +16,7 @@ std_dev = 0.2
 batch_size = 500
 total_episodes = 10000
 total_epochs = 10
-max_episode_steps = 1000
+max_episode_steps = 500
 
 
 # Discount factor for future rewards

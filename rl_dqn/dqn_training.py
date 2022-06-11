@@ -76,7 +76,7 @@ def start_dqn_training(drone_name: str,
     if is_training:
         epsilon = 1
     else:
-        epsilon = 0
+        epsilon = .5
 
     for ep in range(total_episodes):
         forward_path_index = random.randint(0, forward_paths_amount - 1)
@@ -100,7 +100,7 @@ def start_dqn_training(drone_name: str,
 
             observation, reward, is_done, info = env.step(action)
 
-            state = return_home_agent.observation_to_normalized_state(observation, save_observation_data=True)
+            state = return_home_agent.observation_to_normalized_state(observation, save_observation_data=False)
 
             samples_amount = len(replay_memory.memory)
             log = (f"Train episode: {ep} ({samples_amount} samples), "

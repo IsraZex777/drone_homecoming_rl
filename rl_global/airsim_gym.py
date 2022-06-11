@@ -40,6 +40,14 @@ class AirSimDroneEnvironment(gym.Env):
         self.last_quat_y = None
         self.last_quat_z = None
         self.last_quat_w = None
+
+        self.curr_position_x = None
+        self.curr_position_z = None
+        self.curr_position_y = None
+        self.prev_position_x = None
+        self.prev_position_z = None
+        self.prev_position_y = None
+
         self.initial_distance = None
 
         self.drone_name = drone_name
@@ -113,13 +121,13 @@ class AirSimDroneEnvironment(gym.Env):
         obs_state = obs_state.drop(columns=["has_collided"])
 
         # Calculates reword
-        curr_position_x = obs_state.iloc[-1]["position_x"]
-        curr_position_y = obs_state.iloc[-1]["position_y"]
-        curr_position_z = obs_state.iloc[-1]["position_z"]
+        self.curr_position_x = obs_state.iloc[-1]["position_x"]
+        self.curr_position_y = obs_state.iloc[-1]["position_y"]
+        self.curr_position_z = obs_state.iloc[-1]["position_z"]
         pos_distance = math.sqrt(
-            (curr_position_x - self.init_position_x) ** 2 +
-            (curr_position_y - self.init_position_y) ** 2 +
-            abs(curr_position_z - self.init_position_z)
+            (self.curr_position_x - self.init_position_x) ** 2 +
+            (self.curr_position_y - self.init_position_y) ** 2 +
+            abs(self.curr_position_z - self.init_position_z)
         )
 
         pos_distance_normalized = pos_distance / max_position_distance
@@ -137,35 +145,35 @@ class AirSimDroneEnvironment(gym.Env):
                                                 obs_state.iloc[-1]["orientation_y"],
                                                 obs_state.iloc[-1]["orientation_z"],
                                                 obs_state.iloc[-1]["orientation_w"]]),
-                                      np.array((curr_position_x, curr_position_y, curr_position_z)),
+                                      np.array((self.curr_position_x, self.curr_position_y, self.curr_position_z)),
                                       np.array((self.init_position_x, self.init_position_y, self.init_position_z)))
 
         yaw_reward_factor = ((1 - abs(yaw_diff / 180)) * .6) + .4
         reward *= yaw_reward_factor ** 2
 
         # cannot collied
-        if curr_position_z > -1:
-            return obs_state, reward * abs(curr_position_z), True, {"reason": "Gone too low"}
+        if self.curr_position_z > -1:
+            return obs_state, reward * abs(self.curr_position_z), True, {"reason": "Gone too low"}
 
         # cannot collied
         # print(distance.any() < 1)
         # print(distance)
-        if has_collied.any() or np.less(distance, .7).any():
+        if np.less(distance, .7).any():
             return obs_state, reward, True, {"reason": "Has collied"}
 
         # Can't get more far then max_position_distance
         if pos_distance > max_position_distance:
             return obs_state, reward, True, {"reason": f"gone too far {pos_distance}"}
 
-        if self.prev_action == action_type:
-            self.same_action_factor *= self.same_action_scaler
-        else:
-            self.same_action_factor = 1
+        # If drone stack
+        if self.curr_position_x == self.prev_position_x and \
+                self.curr_position_y == self.prev_position_y and \
+                self.curr_position_z == self.prev_position_z:
+            return obs_state, reward, True, {"reason": f"Drone is stack"}
 
-        if action_type.name in [DroneActions.TURN_LEFT.name, DroneActions.TURN_RIGHT.name] and \
-                not self.allow_same_action:
-            reward *= self.same_action_factor
-
-        self.prev_action = action_type
+        # If reached the target
+        if math.sqrt((self.curr_position_x - self.init_position_x) ** 2 +
+                     (self.curr_position_y - self.init_position_y) ** 2) < 1:
+            return obs_state, 1, True, {"reason": f"reached target"}
 
         return obs_state, reward, False, {}
