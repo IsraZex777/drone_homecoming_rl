@@ -18,7 +18,7 @@ from rl_global.constants import (
     batch_size
 )
 from .dqn_replay_memory import DQNReplayMemory
-from artificial_gps.settings import MODELS_FOLDER_PATH
+from position_prediction.settings import MODELS_FOLDER_PATH
 
 from rl_global.utils import (
     load_replay_memory_from_file,

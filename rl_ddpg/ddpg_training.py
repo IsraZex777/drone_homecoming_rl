@@ -24,7 +24,7 @@ from rl_global.constants import (
     epsilon_greedy_frames
 )
 from rl_global.replay_memory import ReplayMemory
-from artificial_gps.settings import MODELS_FOLDER_PATH
+from position_prediction.settings import MODELS_FOLDER_PATH
 
 from rl_global.utils import (
     load_replay_memory_from_file,
