@@ -4,11 +4,7 @@ import math
 
 
 class GpsAnomalyDetector:
-    ATTACK_CODE = 1
-    ALL_GOOD_CODE = 0
-    SUSPICIOUS_CODE = 9
-
-    def __init__(self, base_threshold=0.01):
+    def __init__(self, base_threshold=1):
         self.base_threshold = base_threshold
         self.__suspicious = False
 
@@ -31,20 +27,8 @@ class GpsAnomalyDetector:
 
         return np.array(positions_euclidean_distances)
 
-    def __anomaly_detector(self, diff_vgps_euc):
-        max_diff = max(diff_vgps_euc)
-        # avg_diff = np.mean(diff_vgps_euc) # for future use
-        if (max_diff > self.base_threshold) and (self.__suspicious):
-            return self.ATTACK_CODE
-        elif max_diff > self.base_threshold:
-            self.__suspicious = True
-            return self.SUSPICIOUS_CODE
-        else:
-            return self.ALL_GOOD_CODE
-
-    def send_info(self, points_gps, points_pos):
+    def is_under_attack(self, points_gps, points_pos):
         gps_v_d = self.__get_vincenty_distances(points_gps)
         pos_e_d = self.__get_euclidean_distances(points_pos)
-        diff_vgps_euc = abs(gps_v_d - pos_e_d)
-        code = self.__anomaly_detector(diff_vgps_euc)
-        return code
+
+        return abs(pos_e_d[0] - gps_v_d[0]) >= self.base_threshold

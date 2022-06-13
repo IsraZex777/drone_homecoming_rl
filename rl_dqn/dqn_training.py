@@ -9,6 +9,7 @@ from typing import List
 
 from .dqn_algorithm import DQNAlgorithm
 from .actor import make_actor_action
+
 from rl_global import ReturnHomeActor
 
 from rl_global.airsim_gym import AirSimDroneEnvironment
