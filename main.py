@@ -71,7 +71,7 @@ def main_train_online():
                        replay_memory_file_name=replay_memory_name,
                        load_last_model=False,
                        training_name=training_name,
-                       is_training=False,
+                       is_training=True,
                        pos_prediction_model_name=pos_prediction_model_name,
                        logger=logger)
 

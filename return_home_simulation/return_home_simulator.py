@@ -20,6 +20,7 @@ def run_drone_return_to_home_simulation(pos_prediction_model: str,
                                         q_model_name: str):
     prediction_model_path = os.path.join(MODELS_FOLDER_PATH, pos_prediction_model)
     model, scaler_x, scaler_y = load_model_with_scalers_binary(prediction_model_path)
+    # model = load_model(prediction_model_path)
     pos_predictor = PositionPredictor(model, scaler_x, scaler_y)
 
     q_model = load_model(os.path.join(MODELS_FOLDER_PATH, q_model_name))

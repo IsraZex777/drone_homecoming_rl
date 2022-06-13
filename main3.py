@@ -2,7 +2,7 @@ from return_home_simulation import run_drone_return_to_home_simulation
 
 
 if __name__ == "__main__":
-    model_name = "ann_pos_14Jun_next_generation"
+    model_name = "ann_pos_14Jun_next_generation_2"
     # prediction_model_path = os.path.join(MODELS_FOLDER_PATH, model_name)
     # print(prediction_model_path)
     # model, scaler_x, scaler_y = load_model_with_scalers_binary(prediction_model_path)

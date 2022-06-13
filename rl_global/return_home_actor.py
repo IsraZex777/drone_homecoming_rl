@@ -46,16 +46,16 @@ class ReturnHomeActor:
         self.real_y_position = None
         self.real_z_position = None
 
-        if forward_path_csv_path:
-            self.reset_forwarding_info(forward_path_csv_path)
-
         self.pos_prediction_model_name = pos_prediction_model_name
         self.model = ""
         self.scaler_x = ""
         self.scaler_y = ""
         self.position_predictor = ""
 
-        if pos_prediction_model_name:
+        if forward_path_csv_path:
+            self.reset_forwarding_info(forward_path_csv_path)
+
+        if self.pos_prediction_model_name:
             prediction_model_path = os.path.join(MODELS_FOLDER_PATH, pos_prediction_model_name)
             self.model, self.scaler_x, self.scaler_y = load_model_with_scalers_binary(prediction_model_path)
             self.position_predictor = PositionPredictor(self.model, self.scaler_x, self.scaler_y)
