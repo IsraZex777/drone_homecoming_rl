@@ -65,9 +65,9 @@ def main_train_online():
     # pos_prediction_model_name = "ann_pos_11Jun_1510"
     pos_prediction_model_name = ""
     start_dqn_training(drone_name="drone1",
-                       load_replay_memory=True,
+                       load_replay_memory=False,
                        forward_path_csv_files=files,
-                       update_replay_memory=True,
+                       update_replay_memory=False,
                        replay_memory_file_name=replay_memory_name,
                        load_last_model=False,
                        training_name=training_name,
