@@ -25,10 +25,7 @@ def make_actor_action(q_model: tf.keras.Model,
     @param logger: Operation logger
     @return: Tuple of - action type index, action duration in seconds
     """
-
-
-
-    # score_per_action = q_model(state)
+    score_per_action = q_model(state)
 
     # epsilon greedy for exploration
     if random.random() < epsilon:
@@ -36,17 +33,16 @@ def make_actor_action(q_model: tf.keras.Model,
         random_action = random.randrange(0, action_type_amount)
         action_type = DroneActions(random_action)
     else:
-        if state[0][2] >= .15:
-            if int(state[0][3].numpy()):
-                action_type = DroneActions.TURN_RIGHT
-            else:
-                action_type = DroneActions.TURN_LEFT
-        else:
-            action_type = DroneActions.FORWARD
-
-        # # Action with the highest reward
-        # action_type_index = tf.math.argmax(score_per_action[0]).numpy()
-        # action_type = DroneActions(action_type_index)
+        # if state[0][2] >= .15:
+        #     if int(state[0][3].numpy()):
+        #         action_type = DroneActions.TURN_RIGHT
+        #     else:
+        #         action_type = DroneActions.TURN_LEFT
+        # else:
+        #     action_type = DroneActions.FORWARD
+        # Action with the highest reward
+        action_type_index = tf.math.argmax(score_per_action[0]).numpy()
+        action_type = DroneActions(action_type_index)
 
     action_duration = 0
 

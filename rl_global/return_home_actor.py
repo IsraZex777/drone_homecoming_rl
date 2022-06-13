@@ -63,14 +63,25 @@ class ReturnHomeActor:
     def reset_forwarding_info_with_sensors(self, forward_path_sensors):
         self.forward_sensors = forward_path_sensors
 
-        self.init_x_position = self.forward_sensors.iloc[0]["position_x"]
-        self.init_y_position = self.forward_sensors.iloc[0]["position_y"]
-        self.init_z_position = self.forward_sensors.iloc[0]["position_z"]
+        if self.pos_prediction_model_name:
+            self.init_x_position = 0
+            self.init_y_position = 0
+            self.init_z_position = 0
 
-        # In the future predict this change
-        self.curr_x_position = self.forward_sensors.iloc[-1]["position_x"]
-        self.curr_y_position = self.forward_sensors.iloc[-1]["position_y"]
-        self.curr_z_position = self.forward_sensors.iloc[-1]["position_z"]
+            x_offset, y_offset, z_offset = self.position_predictor.predict_position_offset(forward_path_sensors)
+            print(x_offset, y_offset, z_offset)
+            self.curr_x_position = x_offset
+            self.curr_y_position = y_offset
+            self.curr_z_position = z_offset
+        else:
+            self.init_x_position = self.forward_sensors.iloc[0]["position_x"]
+            self.init_y_position = self.forward_sensors.iloc[0]["position_y"]
+            self.init_z_position = self.forward_sensors.iloc[0]["position_z"]
+
+            # In the future predict this change
+            self.curr_x_position = self.forward_sensors.iloc[-1]["position_x"]
+            self.curr_y_position = self.forward_sensors.iloc[-1]["position_y"]
+            self.curr_z_position = self.forward_sensors.iloc[-1]["position_z"]
 
         self.real_x_position = self.forward_sensors.iloc[-1]["position_x"]
         self.real_y_position = self.forward_sensors.iloc[-1]["position_y"]
@@ -93,13 +104,16 @@ class ReturnHomeActor:
         if self.pos_prediction_model_name:
             x_offset, y_offset, z_offset = self.position_predictor.predict_position_offset(obs_data)
 
-            pred_vs_real = f"pos_x_offset: {x_offset} - {obs_data.iloc[-1]['position_x'] - self.real_x_position}\n" \
-                           f"pos_y_offset: {y_offset} - {obs_data.iloc[-1]['position_y'] - self.real_y_position}\n" \
-                           f"pos_z_offset: {z_offset} - {obs_data.iloc[-1]['position_z'] - self.real_z_position}\n"
+            real_x_offset = obs_data.iloc[-1]["position_x"] - self.init_x_position
+            real_y_offset = obs_data.iloc[-1]["position_y"] - self.init_y_position
+            real_z_offset = obs_data.iloc[-1]["position_z"] - self.init_z_position
+            pred_vs_real = (
+                f"Predicted vs Real offset: ({self.curr_x_position :.2f}, {self.curr_y_position :.2f}, {self.curr_z_position:.2f}) - "
+                f"({real_x_offset :.2f}, {real_y_offset :.2f}, {real_z_offset:.2f}) ")
 
             self.curr_x_position += x_offset
-            self.curr_z_position += y_offset
-            self.curr_y_position += z_offset
+            self.curr_y_position += y_offset
+            self.curr_z_position += z_offset
 
             print(pred_vs_real)
             self.logger.debug(f"pred_model_vs_real\n{pred_vs_real}")
@@ -108,10 +122,6 @@ class ReturnHomeActor:
             self.curr_x_position = obs_data.iloc[-1]["position_x"]
             self.curr_y_position = obs_data.iloc[-1]["position_y"]
             self.curr_z_position = obs_data.iloc[-1]["position_z"]
-
-        self.real_x_position = obs_data.iloc[-1]["position_x"]
-        self.real_y_position = obs_data.iloc[-1]["position_y"]
-        self.real_z_position = obs_data.iloc[-1]["position_z"]
 
         yaw_diff = calculate_yaw_diff(np.array([obs_data.iloc[-1]["orientation_x"],
                                                 obs_data.iloc[-1]["orientation_y"],

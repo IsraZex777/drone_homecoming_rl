@@ -4,7 +4,7 @@ import math
 
 
 class GpsAnomalyDetector:
-    def __init__(self, base_threshold=1):
+    def __init__(self, base_threshold=10):
         self.base_threshold = base_threshold
         self.__suspicious = False
 
@@ -30,5 +30,4 @@ class GpsAnomalyDetector:
     def is_under_attack(self, points_gps, points_pos):
         gps_v_d = self.__get_vincenty_distances(points_gps)
         pos_e_d = self.__get_euclidean_distances(points_pos)
-
         return abs(pos_e_d[0] - gps_v_d[0]) >= self.base_threshold

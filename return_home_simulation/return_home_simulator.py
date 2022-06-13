@@ -3,6 +3,7 @@ import threading
 import numpy as np
 import pandas as pd
 
+from tensorflow.keras import Model
 from position_prediction import (
     PositionPredictor,
     load_model_with_scalers_binary,
@@ -22,7 +23,9 @@ def run_drone_return_to_home_simulation(pos_prediction_model: str,
     pos_predictor = PositionPredictor(model, scaler_x, scaler_y)
 
     q_model = load_model(os.path.join(MODELS_FOLDER_PATH, q_model_name))
+    q_model = Model(q_model.inputs[0], q_model.layers[-4].output)
 
+    # return_home_actor = ReturnHomeActor(pos_prediction_model_name=pos_prediction_model)
     return_home_actor = ReturnHomeActor()
 
     print("You have the control.")
