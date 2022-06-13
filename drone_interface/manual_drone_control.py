@@ -2,7 +2,7 @@ import time
 
 from pynput import keyboard
 
-from drone_controller import (
+from .drone_controller import (
     DroneController,
     DroneActions
 )
