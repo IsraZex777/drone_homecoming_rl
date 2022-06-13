@@ -7,10 +7,12 @@ venv/
 # Private folder (to personal use)
 private/*
 
-artificial_gps/data/
-artificial_gps/models/*
-artificial_gps/tuners/*
+position_prediction/data/
+position_prediction/models/*
+position_prediction/tuners/*
 
+rl_dqn/models/*
+rl_dqn/tuners/*
 rl_global/rl_replay_memory/*
 rl_global/rl_forward_paths/*
 

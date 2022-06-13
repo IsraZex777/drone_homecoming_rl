@@ -1,5 +1,7 @@
 import os
-import tensorflow as tf
+import numpy as np
+
+from typing import List
 from keras.models import model_from_json
 from pickle import (
     dump,
@@ -8,7 +10,7 @@ from pickle import (
 from functools import wraps
 from time import time
 
-from .settings import (
+from position_prediction.settings import (
     MODELS_FOLDER_PATH
 )
 
@@ -74,6 +76,29 @@ def load_model_with_scalers_binary(model_name: str):
     return model, scaler_x, scaler_y
 
 
+def split_data(data: np.array, train_per=0.95, dev_per=0.5):
+    """
+    Splits data into train, dev and test
+    :return:
+    """
+    data_len = len(data)
+
+    train, dev, test = np.split(data, [int(train_per * data_len),
+                                       int((dev_per + train_per) * data_len)])
+
+    return train, dev, test
+
+
+def shuffle_data_set(x_data: np.array, y_data: np.array):
+    example_amount = x_data.shape[0]
+    shuffle_indexes = np.random.permutation(example_amount)
+
+    x_data = x_data[shuffle_indexes]
+    y_data = y_data[shuffle_indexes]
+
+    return x_data, y_data
+
+
 def save_model(model, model_name):
     model_json = model.to_json()
     with open(f"{model_name}.json", "w") as json_file:
@@ -90,3 +115,12 @@ def load_model(model_name):
     loaded_model.load_weights(f"{model_name}.h5")
 
     return loaded_model
+
+
+def columns_names_to_indexes(columns: List[str], target_columns_list: list):
+    indexes = []
+    for index, column in enumerate(target_columns_list):
+        if column in columns:
+            indexes.append(index)
+
+    return indexes

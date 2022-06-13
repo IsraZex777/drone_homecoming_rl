@@ -16,7 +16,7 @@ std_dev = 0.2
 batch_size = 500
 total_episodes = 10000
 total_epochs = 10
-max_episode_steps = 1000
+max_episode_steps = 500
 
 
 # Discount factor for future rewards

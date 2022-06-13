@@ -55,4 +55,4 @@ RUN_SECONDS = RUN_MINUTES * 60
 
 RECORDS_FOLDER = os.path.join(os.path.dirname(__file__), "recordings")
 
-IS_SIM_CLOCK_FASTER = False
+IS_SIM_CLOCK_FASTER = True
