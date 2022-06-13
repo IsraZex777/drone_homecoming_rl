@@ -26,7 +26,7 @@ from .utils import calculate_yaw_diff
 
 class ReturnHomeActor:
     def __init__(self,
-                 forward_path_csv_path: str,
+                 forward_path_csv_path: str = "",
                  pos_prediction_model_name: str = "",
                  logger: logging.Logger = logging.getLogger("dummy")):
 
@@ -42,7 +42,12 @@ class ReturnHomeActor:
         self.curr_y_position = None
         self.curr_z_position = None
 
-        self.reset_forwarding_info(forward_path_csv_path)
+        self.real_x_position = None
+        self.real_y_position = None
+        self.real_z_position = None
+
+        if forward_path_csv_path:
+            self.reset_forwarding_info(forward_path_csv_path)
 
         self.pos_prediction_model_name = pos_prediction_model_name
         self.model = ""
@@ -55,10 +60,8 @@ class ReturnHomeActor:
             self.model, self.scaler_x, self.scaler_y = load_model_with_scalers_binary(prediction_model_path)
             self.position_predictor = PositionPredictor(self.model, self.scaler_x, self.scaler_y)
 
-    def reset_forwarding_info(self, forward_path_csv_path=""):
-        if forward_path_csv_path != self.forward_path_csv_path:
-            self.forward_path_csv_path = forward_path_csv_path
-            self.forward_sensors = pd.read_csv(forward_path_csv_path)
+    def reset_forwarding_info_with_sensors(self, forward_path_sensors):
+        self.forward_sensors = forward_path_sensors
 
         self.init_x_position = self.forward_sensors.iloc[0]["position_x"]
         self.init_y_position = self.forward_sensors.iloc[0]["position_y"]
@@ -72,6 +75,13 @@ class ReturnHomeActor:
         self.real_x_position = self.forward_sensors.iloc[-1]["position_x"]
         self.real_y_position = self.forward_sensors.iloc[-1]["position_y"]
         self.real_z_position = self.forward_sensors.iloc[-1]["position_z"]
+
+    def reset_forwarding_info(self, forward_path_csv_path=""):
+        if forward_path_csv_path != self.forward_path_csv_path:
+            self.forward_path_csv_path = forward_path_csv_path
+            self.forward_sensors = pd.read_csv(forward_path_csv_path)
+
+        self.reset_forwarding_info_with_sensors(self.forward_sensors)
 
     def observation_to_normalized_state(self, obs_data: pd.DataFrame, save_observation_data=False):
         # if using the prediction model
