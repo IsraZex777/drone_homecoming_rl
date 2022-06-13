@@ -38,14 +38,11 @@ def make_actor_action(q_model: tf.keras.Model,
     else:
         if state[0][2] >= .15:
             if int(state[0][3].numpy()):
-                print("right")
                 action_type = DroneActions.TURN_RIGHT
             else:
-                print("left")
                 action_type = DroneActions.TURN_LEFT
         else:
             action_type = DroneActions.FORWARD
-        print("############# GOOD #############")
 
         # # Action with the highest reward
         # action_type_index = tf.math.argmax(score_per_action[0]).numpy()

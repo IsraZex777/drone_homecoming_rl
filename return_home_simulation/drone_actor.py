@@ -2,7 +2,7 @@ import os
 import time
 import numpy as np
 import random
-
+import threading
 import pandas as pd
 import tensorflow as tf
 
@@ -23,7 +23,7 @@ from drone_interface import (
 def run_drone_actor(position_predictor: PositionPredictor,
                     return_home_actor: ReturnHomeActor,
                     q_model: tf.keras.Model,
-                    should_create_anomaly: bool = True,
+                    should_create_anomaly: threading.Event,
                     drone_name: str = "drone1"):
     observer = ActorObserver(drone_name=drone_name)
     anomaly_detector = GpsAnomalyDetector()
@@ -41,7 +41,7 @@ def run_drone_actor(position_predictor: PositionPredictor,
         gps_obs = init_observation[["gps_latitude", "gps_longitude"]]
 
         # creates anomaly
-        if should_create_anomaly:
+        if should_create_anomaly.is_set():
             new_gps_values = gps_obs.iloc[-1] * (1 + np.random.randn(2) * 0.1)
             gps_obs = gps_obs.append(new_gps_values, ignore_index=True)
 
@@ -67,11 +67,12 @@ def run_drone_actor(position_predictor: PositionPredictor,
         action_type, action_duration = action
 
         print(f"Drone Action: {action_type.name}")
-        controller.handle_action(action_type, duration=action_duration, stop_duration=2)
+        controller.handle_action(action_type, duration=action_duration, stop_duration=3)
 
         observer.reset_recording_data()
+        time.sleep(.1)
 
-        if state[0] < 0.05:
+        if state[0] < 0.02:
             reached_target = True
 
     print("Drone reached target")

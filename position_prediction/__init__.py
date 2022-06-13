@@ -5,4 +5,7 @@ from .utils import (
     load_model,
     save_model
 )
+from .settings import (
+    MODELS_FOLDER_PATH
+)
 from .position_predictor import PositionPredictor
