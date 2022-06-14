@@ -2,7 +2,7 @@ import time
 
 from pynput import keyboard
 
-from drone_controller import (
+from .drone_controller import (
     DroneController,
     DroneActions
 )
@@ -24,9 +24,6 @@ class DroneKeyboardInterface:
             keyboard.Key.right: DroneActions.TURN_RIGHT,
             keyboard.KeyCode.from_char("w"): DroneActions.UP,
             keyboard.KeyCode.from_char("s"): DroneActions.DOWN,
-            # keyboard.KeyCode.from_char("1"): DroneActions.SPEED_LEVEL_1,
-            # keyboard.KeyCode.from_char("2"): DroneActions.SPEED_LEVEL_2,
-            # keyboard.KeyCode.from_char("3"): DroneActions.SPEED_LEVEL_3,
         }
         self._current_action = None
 
@@ -52,6 +49,9 @@ class DroneKeyboardInterface:
         @param key: Keyboard key
         @return: None
         """
+        if key == keyboard.Key.esc:
+            return False
+
         if key in self._key_command_mapping.keys():
             self._current_action = self._key_command_mapping[key]
 

@@ -9,6 +9,7 @@ from typing import List
 
 from .dqn_algorithm import DQNAlgorithm
 from .actor import make_actor_action
+
 from rl_global import ReturnHomeActor
 
 from rl_global.airsim_gym import AirSimDroneEnvironment
@@ -100,7 +101,7 @@ def start_dqn_training(drone_name: str,
 
             observation, reward, is_done, info = env.step(action)
 
-            state = return_home_agent.observation_to_normalized_state(observation, save_observation_data=False)
+            state = return_home_agent.observation_to_normalized_state(observation, save_observation_data=True)
 
             samples_amount = len(replay_memory.memory)
             log = (f"Train episode: {ep} ({samples_amount} samples), "

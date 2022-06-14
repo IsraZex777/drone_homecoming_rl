@@ -1,14 +1,11 @@
 import numpy as np
-import vincenty # pip install vincenty
+from vincenty import vincenty
 import math
 
-class GpsAnomalyDetector:
-    ATTACK_CODE = 1
-    ALL_GOOD_CODE = 0
-    SUSPICIOUS_CODE = 9
 
-    def __init__(self, base_threshhold=0.01):
-        self.base_threshhold = base_threshhold
+class GpsAnomalyDetector:
+    def __init__(self, base_threshold=10):
+        self.base_threshold = base_threshold
         self.__suspicious = False
 
     def __get_vincenty_distances(self, points_gps):
@@ -30,20 +27,7 @@ class GpsAnomalyDetector:
 
         return np.array(positions_euclidean_distances)
 
-    def __anomaly_detector(self, diff_vgps_euc):
-        max_diff = max(diff_vgps_euc)
-        # avg_diff = np.mean(diff_vgps_euc) # for future use
-        if (max_diff > self.base_threshhold) and (self.__suspicious):
-            return self.ATTACK_CODE
-        elif max_diff > self.base_threshhold:
-            self.__suspicious = True
-            return self.SUSPICIOUS_CODE
-        else:
-            return self.ALL_GOOD_CODE
-
-    def send_info(self, points_gps, points_pos):
+    def is_under_attack(self, points_gps, points_pos):
         gps_v_d = self.__get_vincenty_distances(points_gps)
         pos_e_d = self.__get_euclidean_distances(points_pos)
-        diff_vgps_euc = abs(gps_v_d - pos_e_d)
-        code = self.__anomaly_detector(diff_vgps_euc)
-        return code
+        return abs(pos_e_d[0] - gps_v_d[0]) >= self.base_threshold
